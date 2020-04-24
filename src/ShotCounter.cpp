@@ -20,12 +20,14 @@
 #define EEPROM_CRC_ADDR 1019
 
 /**
- * Variables
+ * Global variables
  */
 // Gyro
 int16_t gyro_g_x, gyro_g_y, gyro_g_z;
 int16_t gyro_x, gyro_y, gyro_z;
 int16_t gyro_temp;
+// Selected profile
+short profile_index = 0;
 
 // EEPROM pointer, data structure & checksum class
 int eeAddress = 0;
@@ -37,8 +39,10 @@ struct ShotCounter {
 };
 EEPROM_crc eepromCrc(EEPROM_CRC_ADDR, eeAddress, sizeof(ShotCounter));
 
-// Setup programm
+// Display class
 Adafruit_SSD1306 display(OLED_RESET);
+
+// Setup programm
 void setup() {
   // Setup display (SBC-OLED01)
   display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
