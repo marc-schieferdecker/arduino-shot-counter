@@ -8,6 +8,6 @@ Hardware components used:
 * Joy-it MPU0650
 * Joy-it KY004TM
 
-Source code need refactoring but is working - sorry I did this quick and dirty.
+Source code will need refactoring but is working - sorry I did this quick and dirty.
 
 `¯\_(ツ)_/¯`
