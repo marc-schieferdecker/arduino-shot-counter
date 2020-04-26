@@ -9,8 +9,8 @@
 #include <Adafruit_SSD1306.h>
 // Project includes
 #include "Grafics.h"
-#include "classes\EEPromCRC.h"
-#include "classes\SingleButton.h"
+#include "classes/SingleButton.h"
+#include "classes/DataProfiles.h"
 
 /**
  * Definitions
@@ -20,8 +20,8 @@
 #define GYRO_ADDR 0x68 // AD0 low 0x68, AD0 high 0x69
 #define GYRO_ACC_REGISTER_START 0x43
 #define EEPROM_CRC_ADDR 1019
-#define BUTTON_PIN 10
-#define BUTTON_REGISTER 0xB2
+#define PROFILES_EEADDR_START 0
+#define PROFILES_MAX 6
 
 /**
  * Global variables
@@ -34,23 +34,16 @@ short profile_index = 0;
 short page_index = 0;
 bool page_changed = false;
 
-// Display needs update status (reduce display draws for a good performance)
+// Display needs update (reduce display draws for better performance)
 bool display_changed = true;
 
 // Display class
 Adafruit_SSD1306 display(OLED_RESET);
 
 // EEPROM pointer, data structure & checksum class
-int eeAddress = 0;
-struct ShotCounter {
-  unsigned long shotsTotal;
-  unsigned int shotsSeries;
-  int countGforce;
-  int shotDelay;
-  char profileName[15];
-};
 ShotCounter shotCounter;
-EEPROM_crc eepromCrc(EEPROM_CRC_ADDR, eeAddress, sizeof(ShotCounter));
+EEPROM_crc eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) * PROFILES_MAX);
+DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
 
 // Button handler
 SingleButton singleButton(1500);
@@ -91,27 +84,10 @@ void setup() {
   Wire.write(0b00011000); // Set acc to 16g
   Wire.endTransmission(true);
 
-  // Setup button (Com-KY004TM)
-  pinMode(BUTTON_PIN, INPUT);
-  digitalWrite(BUTTON_PIN, HIGH);
-
-  // Init EEPROM
-  if (!eepromCrc.crcIsValid()) {
-    // Write default data to EEPROM
-    ShotCounter defaultShotCounter = {
-      0,
-      0,
-      3,
-      250,
-      "Preset 1"
-    };
-    EEPROM.put(eeAddress, defaultShotCounter);
-    eepromCrc.crcPut();
-  }
+  // Init data
+  dataProfiles.init();
   // Load shot counter from EEPROM
-  EEPROM.get(eeAddress, shotCounter);
-  // Set series counter to 0 on restart
-  shotCounter.shotsSeries = 0;
+  shotCounter = dataProfiles.getShotCounter();
 
   // Print state of EEPROM
   Serial.print("CRC EEPROM STATE ");
@@ -157,19 +133,18 @@ void loop() {
       display.clearDisplay();
       display.setCursor(0,0);
       display.println(shotCounter.profileName);
-      display.print("Total       ");
+      display.println("");
+      display.print("Total      ");
       display.println(shotCounter.shotsTotal);
-      display.print("Series      ");
+      display.print("Series     ");
       display.println(shotCounter.shotsSeries);
-      display.print("Force/delay ");
-      display.print(shotCounter.countGforce);
-      display.print("/");
-      display.print(shotCounter.shotDelay);
-      display.println("ms");
       display.display();
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
+      dataProfiles.nextShotCounter();
+      shotCounter = dataProfiles.getShotCounter();
+      display_changed = true;
       display.invertDisplay(true);
       delay(100);
       display.invertDisplay(false);
@@ -187,6 +162,8 @@ void loop() {
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
+      shotCounter.shotsSeries = 0;
+      dataProfiles.putShotCounter(shotCounter);
       display.invertDisplay(true);
       delay(100);
       display.invertDisplay(false);
@@ -216,8 +193,7 @@ void loop() {
       // Delay to prevent multiple counts
       shotCounter.shotsSeries++;
       shotCounter.shotsTotal++;
-      EEPROM.put(eeAddress, shotCounter);
-      eepromCrc.crcPut();
+      dataProfiles.putShotCounter(shotCounter);
       display.invertDisplay(true);
       delay(shotCounter.shotDelay);
       display.invertDisplay(false);
@@ -239,6 +215,10 @@ void loop() {
       page_index = 3;
       page_changed = true;
       display_changed = true;
+      display.invertDisplay(true);
+      delay(100);
+      display.invertDisplay(false);
+      delay(500);
       singleButton.longPressTriggerDone();
     }
   }
@@ -316,6 +296,7 @@ void loop() {
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
+      shotCounter = dataProfiles.resetShotCounter();
       display.invertDisplay(true);
       delay(100);
       display.invertDisplay(false);

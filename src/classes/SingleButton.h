@@ -1,9 +1,15 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define BUTTON_PIN_REG PINB
-#define BUTTON_PRESS_VAL 0
-#define BUTTON_RELEASE_VAL 4
+#if !defined(BUTTON_PIN_REG)
+    #define BUTTON_PIN_REG PINB
+#endif
+#if !defined(BUTTON_PRESS_VAL)
+    #define BUTTON_PRESS_VAL 0
+#endif
+#if !defined(BUTTON_RELEASE_VAL)
+    #define BUTTON_RELEASE_VAL 4
+#endif
 
 class SingleButton {
     private:
