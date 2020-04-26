@@ -22,7 +22,7 @@
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
-#define PRINT_DEBUG true
+#define PRINT_DEBUG false
 
 /**
  * Global variables
@@ -51,12 +51,6 @@ SingleButton singleButton(1500);
 
 // Setup programm
 void setup() {
-  Serial.begin(9600);
-  if (PRINT_DEBUG) {
-    Serial.print("Setup()");
-    Serial.println();
-  }
-
   // Setup display (SBC-OLED01)
   display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
   display.clearDisplay();
@@ -64,28 +58,72 @@ void setup() {
   display.display();
   delay(1000);
 
+  // Setup serial console in debug mode
+  if (PRINT_DEBUG) {
+    Serial.begin(9600);
+    delay(50);
+    Serial.println("Setup serial with 9600 baud");
+  }
+
   // Setup gyro (MPU6050)
   Wire.begin();
   Wire.beginTransmission(GYRO_ADDR);
   Wire.write(0x6B);
   Wire.write(0b10000000); // Reset gyro to default
   Wire.endTransmission(true);
+  delay(50);
+  if (PRINT_DEBUG) {
+    Serial.println("Gyro reseted");
+  }
 
-  Wire.begin();
   Wire.beginTransmission(GYRO_ADDR);
   Wire.write(0x6B);
   Wire.write(0); // Set sleep to 0
   Wire.endTransmission(true);
+  delay(50);
+  if (PRINT_DEBUG) {
+    Serial.println("Gyro waked");
+  }
 
   Wire.beginTransmission(GYRO_ADDR);
   Wire.write(0x1B);
   Wire.write(0b00011000); // Set max gyro scale
   Wire.endTransmission(true);
+  delay(50);
+  if (PRINT_DEBUG) {
+    Serial.println("Gyro set to max scale");
+  }
 
   Wire.beginTransmission(GYRO_ADDR);
   Wire.write(0x1C);
   Wire.write(0b00011000); // Set acc to 16g
   Wire.endTransmission(true);
+  delay(50);
+  if (PRINT_DEBUG) {
+    Serial.print("Gyro acc sensitivity set to 16g");
+  }
+
+  // Test if gyro is sleeping
+  Wire.beginTransmission(GYRO_ADDR);
+  Wire.write(0x6B);
+  Wire.endTransmission(false);
+  Wire.requestFrom(GYRO_ADDR, 1, true);
+  byte testSleepMode = Wire.read();
+  Wire.endTransmission(true);
+  delay(50);
+  if (PRINT_DEBUG) {
+    Serial.print("Gyro is sleeping -> ");
+    Serial.println(testSleepMode);
+  }
+  if (testSleepMode & 0x01000000) {
+    display.clearDisplay();
+    display.setTextColor(WHITE);
+    display.setTextSize(1);
+    display.setCursor(2,0);
+    display.println("Problem with gyro");
+    display.println("Sleep bit still active");
+    delay(5000);
+  }
 
   // Init data
   dataProfiles.init();
@@ -111,12 +149,6 @@ void setup() {
   display.println("letsshootshow.de");
   display.display();
   delay(1000);
-  display.invertDisplay(true);
-  delay(100);
-  display.invertDisplay(false);
-  delay(100);
-  display.clearDisplay();
-  display.display();
 }
 
 // Main loop
@@ -192,12 +224,6 @@ void loop() {
     float gyro_max = max(max(gyro_acc_x, gyro_acc_y), gyro_acc_z);
 
     // Count shots depending on g force setting of profile
-    if (PRINT_DEBUG) {
-      Serial.println(gyro_g_x);
-      Serial.println(gyro_g_y);
-      Serial.println(gyro_g_z);
-      Serial.println(gyro_max);
-    }
     if (gyro_max >= shotCounter.countGforce) {
       if (PRINT_DEBUG) {
         Serial.print("SHOT COUNTED ");
