@@ -22,6 +22,7 @@
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
+#define DEBUG false
 
 /**
  * Global variables
@@ -50,9 +51,11 @@ SingleButton singleButton(1500);
 
 // Setup programm
 void setup() {
-  Serial.begin(9600);
-  Serial.print("Setup()");
-  Serial.println();
+  if (DEBUG) {
+    Serial.begin(9600);
+    Serial.print("Setup()");
+    Serial.println();
+  }
 
   // Setup display (SBC-OLED01)
   display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
@@ -90,9 +93,11 @@ void setup() {
   shotCounter = dataProfiles.getShotCounter();
 
   // Print state of EEPROM
-  Serial.print("CRC EEPROM STATE ");
-  Serial.print(eepromCrc.crcIsValid());
-  Serial.println();
+  if (DEBUG) {
+    Serial.print("CRC EEPROM STATE ");
+    Serial.print(eepromCrc.crcIsValid());
+    Serial.println();
+  }
 
   // Display test
   display.clearDisplay();
@@ -188,8 +193,10 @@ void loop() {
 
     // Count shots depending on g force setting of profile
     if (gyro_max >= shotCounter.countGforce) {
-      Serial.print("SHOT COUNTED ");
-      Serial.println(gyro_max);
+      if (DEBUG) {
+        Serial.print("SHOT COUNTED ");
+        Serial.println(gyro_max);
+      }
       // Delay to prevent multiple counts
       shotCounter.shotsSeries++;
       shotCounter.shotsTotal++;
@@ -226,9 +233,9 @@ void loop() {
     if (display_changed) {
       display.clearDisplay();
       display.setCursor(0,0);
-      display.println("Setup profile");
       display.println("Minimum G force");
       display.println("to count a shot:");
+      display.println();
       display.print(shotCounter.countGforce);
       display.println(" g");
       display.display();
@@ -236,6 +243,11 @@ void loop() {
     }
     // Shortpress handler
     if (singleButton.shortPressTrigger()) {
+      // If settings changed, save profile
+      ShotCounter shotCounterStored = dataProfiles.getShotCounter();
+      if (shotCounterStored.countGforce != shotCounter.countGforce) {
+        dataProfiles.putShotCounter(shotCounter);
+      }
       page_index = 4;
       page_changed = true;
       display_changed = true;
@@ -243,6 +255,8 @@ void loop() {
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
+      shotCounter.countGforce = shotCounter.countGforce + 0.5 > 16 ? 0.5 : shotCounter.countGforce + 0.5;
+      display_changed = true;
       display.invertDisplay(true);
       delay(100);
       display.invertDisplay(false);
@@ -253,9 +267,9 @@ void loop() {
     if (display_changed) {
       display.clearDisplay();
       display.setCursor(0,0);
-      display.println("Setup profile");
       display.println("Minimum time");
       display.println("between shots:");
+      display.println("");
       display.print(shotCounter.shotDelay);
       display.println(" ms");
       display.display();
@@ -263,6 +277,11 @@ void loop() {
     }
     // Shortpress handler
     if (singleButton.shortPressTrigger()) {
+      // If settings changed, save profile
+      ShotCounter shotCounterStored = dataProfiles.getShotCounter();
+      if (shotCounterStored.shotDelay != shotCounter.shotDelay) {
+        dataProfiles.putShotCounter(shotCounter);
+      }
       page_index = 5;
       page_changed = true;
       display_changed = true;
@@ -270,6 +289,8 @@ void loop() {
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
+      shotCounter.shotDelay = shotCounter.shotDelay + 50 > 2000 ? 50 : shotCounter.shotDelay + 50;
+      display_changed = true;
       display.invertDisplay(true);
       delay(100);
       display.invertDisplay(false);
@@ -280,7 +301,7 @@ void loop() {
     if (display_changed) {
       display.clearDisplay();
       display.setCursor(0,0);
-      display.println("Reset profile");
+      display.println("Reset profile?");
       display.println("");
       display.println("To reset this profile");
       display.println("hold button");
@@ -305,7 +326,7 @@ void loop() {
   }
 
   // Delay after page change to disable multiple page changes
-  if(page_changed) {
+  if (page_changed) {
     delay(150);
     page_changed = false;
   }

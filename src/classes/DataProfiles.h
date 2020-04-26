@@ -75,7 +75,7 @@ class DataProfiles {
 
         void nextShotCounter() {
             this -> selectedProfile++;
-            if(this -> selectedProfile > (this -> profilesMax - 1)) {
+            if (this -> selectedProfile > (this -> profilesMax - 1)) {
                 this -> selectedProfile = 0;
             }
             this -> eeAddress = (sizeof(ShotCounter) * this -> selectedProfile);
