@@ -10,4 +10,4 @@ Hardware components used:
 
 Source code need refactoring but is working - sorry I did this quick and dirty.
 
-¯\_(ツ)_/¯
+`¯\_(ツ)_/¯`
