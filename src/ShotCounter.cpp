@@ -22,7 +22,7 @@
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
-#define DEBUG false
+#define PRINT_DEBUG true
 
 /**
  * Global variables
@@ -51,8 +51,8 @@ SingleButton singleButton(1500);
 
 // Setup programm
 void setup() {
-  if (DEBUG) {
-    Serial.begin(9600);
+  Serial.begin(9600);
+  if (PRINT_DEBUG) {
     Serial.print("Setup()");
     Serial.println();
   }
@@ -93,7 +93,7 @@ void setup() {
   shotCounter = dataProfiles.getShotCounter();
 
   // Print state of EEPROM
-  if (DEBUG) {
+  if (PRINT_DEBUG) {
     Serial.print("CRC EEPROM STATE ");
     Serial.print(eepromCrc.crcIsValid());
     Serial.println();
@@ -192,8 +192,14 @@ void loop() {
     float gyro_max = max(max(gyro_acc_x, gyro_acc_y), gyro_acc_z);
 
     // Count shots depending on g force setting of profile
+    if (PRINT_DEBUG) {
+      Serial.println(gyro_g_x);
+      Serial.println(gyro_g_y);
+      Serial.println(gyro_g_z);
+      Serial.println(gyro_max);
+    }
     if (gyro_max >= shotCounter.countGforce) {
-      if (DEBUG) {
+      if (PRINT_DEBUG) {
         Serial.print("SHOT COUNTED ");
         Serial.println(gyro_max);
       }
