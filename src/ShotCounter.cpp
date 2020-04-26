@@ -10,6 +10,7 @@
 // Project includes
 #include "Grafics.h"
 #include "classes\EEPromCRC.h"
+#include "classes\SingleButton.h"
 
 /**
  * Definitions
@@ -32,6 +33,7 @@ short profile_index = 0;
 // Page pointer and change status
 short page_index = 0;
 bool page_changed = false;
+
 // Display needs update status (reduce display draws for a good performance)
 bool display_changed = true;
 
@@ -49,6 +51,9 @@ struct ShotCounter {
 };
 ShotCounter shotCounter;
 EEPROM_crc eepromCrc(EEPROM_CRC_ADDR, eeAddress, sizeof(ShotCounter));
+
+// Button handler
+SingleButton singleButton(1500);
 
 // Setup programm
 void setup() {
@@ -135,15 +140,19 @@ void setup() {
 
 // Main loop
 void loop() {
-  // Change page via button press
-  if (PINB == 0) {
-    page_index = (page_index + 1) > 4 ? 0 : (page_index + 1);
-    page_changed = true;
-    display_changed = true;
+  // Button handler
+  singleButton.loop();
+  // Check for short press
+  if (singleButton.shortPressTrigger() && page_index <= 2) {
+      page_index = (page_index + 1) > 2 ? 0 : (page_index + 1);
+      page_changed = true;
+      display_changed = true;
+      singleButton.shortPressTriggerDone();
   }
 
   // Main page (displays data of active preset)
   if (page_index == 0) {
+    // Show profile values
     if (display_changed) {
       display.clearDisplay();
       display.setCursor(0,0);
@@ -154,49 +163,36 @@ void loop() {
       display.println(shotCounter.shotsSeries);
       display.print("Force/delay ");
       display.print(shotCounter.countGforce);
-      display.print(" /  ");
+      display.print("/");
       display.print(shotCounter.shotDelay);
       display.println("ms");
       display.display();
+    }
+    // Longpress handler
+    if (singleButton.longPressTrigger()) {
+      display.invertDisplay(true);
+      delay(100);
+      display.invertDisplay(false);
+      singleButton.longPressTriggerDone();
     }
   }
   else if (page_index == 1) {
     if (display_changed) {
       display.clearDisplay();
       display.setCursor(0,0);
-      display.println("Setup");
-      display.display();
-      display_changed = false;
-    }
-  }
-  else if (page_index == 2) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
-      display.println("Page 3");
-      display.display();
-      display_changed = false;
-    }
-  }
-  else if (page_index == 3) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
-      display.println("Page 4");
-      display.display();
-      display_changed = false;
-    }
-  }
-  else if (page_index == 4) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
-      display.println("  Waiting for shots!");
+      display.println("  Waiting for shots");
       display.drawBitmap(44, 10, Aim, 40, 20, WHITE);
       display.display();
       display_changed = false;
     }
-    
+    // Longpress handler
+    if (singleButton.longPressTrigger()) {
+      display.invertDisplay(true);
+      delay(100);
+      display.invertDisplay(false);
+      singleButton.longPressTriggerDone();
+    }
+
     // Measure gyro
     Wire.beginTransmission(GYRO_ADDR);
     Wire.write(GYRO_ACC_REGISTER_START);
@@ -225,6 +221,105 @@ void loop() {
       display.invertDisplay(true);
       delay(shotCounter.shotDelay);
       display.invertDisplay(false);
+    }
+  }
+  else if (page_index == 2) {
+    if (display_changed) {
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.println("Setup profile");
+      display.println("");
+      display.println("To enter setup");
+      display.println("hold button");
+      display.display();
+      display_changed = false;
+    }
+    // Longpress handler
+    if (singleButton.longPressTrigger()) {
+      page_index = 3;
+      page_changed = true;
+      display_changed = true;
+      singleButton.longPressTriggerDone();
+    }
+  }
+  else if (page_index == 3) {
+    if (display_changed) {
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.println("Setup profile");
+      display.println("Minimum G force");
+      display.println("to count a shot:");
+      display.print(shotCounter.countGforce);
+      display.println(" g");
+      display.display();
+      display_changed = false;
+    }
+    // Shortpress handler
+    if (singleButton.shortPressTrigger()) {
+      page_index = 4;
+      page_changed = true;
+      display_changed = true;
+      singleButton.shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton.longPressTrigger()) {
+      display.invertDisplay(true);
+      delay(100);
+      display.invertDisplay(false);
+      singleButton.longPressTriggerDone();
+    }
+  }
+  else if (page_index == 4) {
+    if (display_changed) {
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.println("Setup profile");
+      display.println("Minimum time");
+      display.println("between shots:");
+      display.print(shotCounter.shotDelay);
+      display.println(" ms");
+      display.display();
+      display_changed = false;
+    }
+    // Shortpress handler
+    if (singleButton.shortPressTrigger()) {
+      page_index = 5;
+      page_changed = true;
+      display_changed = true;
+      singleButton.shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton.longPressTrigger()) {
+      display.invertDisplay(true);
+      delay(100);
+      display.invertDisplay(false);
+      singleButton.longPressTriggerDone();
+    }
+  }
+  else if (page_index == 5) {
+    if (display_changed) {
+      display.clearDisplay();
+      display.setCursor(0,0);
+      display.println("Reset profile");
+      display.println("");
+      display.println("To reset this profile");
+      display.println("hold button");
+      display.display();
+      display_changed = false;
+    }
+    // Shortpress handler
+    if (singleButton.shortPressTrigger()) {
+      page_index = 0;
+      page_changed = true;
+      display_changed = true;
+      singleButton.shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton.longPressTrigger()) {
+      display.invertDisplay(true);
+      delay(100);
+      display.invertDisplay(false);
+      singleButton.longPressTriggerDone();
     }
   }
 
