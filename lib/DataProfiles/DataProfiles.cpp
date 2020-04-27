@@ -9,7 +9,7 @@ DataProfiles::DataProfiles(unsigned short _profilesMax, unsigned int _eeAddress,
     eepromCrc = _eepromCrc;
 }
 
-void DataProfiles::init() {
+ShotCounter DataProfiles::init() {
     // Check crc
     if (!eepromCrc -> crcIsValid()) {
         for(int i = 0; i < profilesMax; i++) {
@@ -30,6 +30,7 @@ void DataProfiles::init() {
         }
         eepromCrc -> crcPut();
     }
+    return getShotCounter();
 }
 
 ShotCounter DataProfiles::getShotCounter() {

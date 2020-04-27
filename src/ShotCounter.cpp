@@ -10,6 +10,7 @@
 #include <SingleButton.h>
 #include <DataProfiles.h>
 #include <GyroMeasure.h>
+#include <DisplayHelper.h>
 
 /**
  * Definitions
@@ -24,36 +25,33 @@
 /**
  * Global variables
  */
-// Selected profile
-short profile_index = 0;
 // Page pointer and change status
 short page_index = 0;
 bool page_changed = false;
+// Active shot counter
+ShotCounter shotCounter;
 
-// Display needs update (reduce display draws for better performance)
-bool display_changed = true;
-
+/**
+ * Instanciate classes
+ */
 // Display class
 Adafruit_SSD1306 display(OLED_RESET);
-
-// Gyre measurement
+// Display helper
+DisplayHelper displayHelper(&display, SSD1306_SWITCHCAPVCC, OLED_ADDR);
+// Gyro measurement
 GyroMeasure gyroMeasure(&display);
-
-// EEPROM pointer, data structure & checksum class
-ShotCounter shotCounter;
+// EEPROM crc
 EEPromCRC eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) * PROFILES_MAX);
+// Data profiles
 DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
-
 // Button handler
 SingleButton singleButton(1500);
 
 // Setup programm
 void setup() {
   // Setup display (SBC-OLED01)
-  display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
-  display.clearDisplay();
-  display.drawBitmap(0, 0, Logo, 128, 32, WHITE);
-  display.display();
+  displayHelper.setup();
+  displayHelper.bitmapFullscreen(Logo);
   delay(1000);
 
   // Setup serial console in debug mode
@@ -66,10 +64,8 @@ void setup() {
   // Init gyro senson
   gyroMeasure.init();
 
-  // Init data
-  dataProfiles.init();
-  // Load shot counter from EEPROM
-  shotCounter = dataProfiles.getShotCounter();
+  // Init data & load shot counter from EEPROM
+  shotCounter = dataProfiles.init();
 
   // Print state of EEPROM
   if (PRINT_DEBUG) {
@@ -79,16 +75,14 @@ void setup() {
   }
 
   // Display test
-  display.clearDisplay();
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
+  displayHelper.clear();
   display.setCursor(2,0);
   display.println("Shot Counter");
   display.setCursor(2,12);
   display.println("Version 0.01a");
   display.setCursor(2,24);
   display.println("letsshootshow.de");
-  display.display();
+  displayHelper.render();
   delay(1000);
 }
 
@@ -100,51 +94,46 @@ void loop() {
   if (singleButton.shortPressTrigger() && page_index <= 2) {
       page_index = (page_index + 1) > 2 ? 0 : (page_index + 1);
       page_changed = true;
-      display_changed = true;
+      displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
   }
 
   // Main page (displays data of active preset)
   if (page_index == 0) {
     // Show profile values
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
+    if (displayHelper.getDisplayChanged()) {
+      displayHelper.clear();
       display.println(shotCounter.profileName);
       display.println("");
       display.print("Total      ");
       display.println(shotCounter.shotsTotal);
       display.print("Series     ");
       display.println(shotCounter.shotsSeries);
-      display.display();
+      displayHelper.render();
+      displayHelper.setDisplayChanged(false);
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
       dataProfiles.nextShotCounter();
       shotCounter = dataProfiles.getShotCounter();
-      display_changed = true;
-      display.invertDisplay(true);
-      delay(100);
-      display.invertDisplay(false);
+      displayHelper.setDisplayChanged(true);
+      displayHelper.blink();
       singleButton.longPressTriggerDone();
     }
   }
   else if (page_index == 1) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
+    if (displayHelper.getDisplayChanged()) {
+      displayHelper.clear();
       display.println("  Waiting for shots");
-      display.drawBitmap(44, 10, Aim, 40, 20, WHITE);
-      display.display();
-      display_changed = false;
+      displayHelper.bitmapIcon(44, 10, Aim, 40, 20);
+      displayHelper.render();
+      displayHelper.setDisplayChanged(false);
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
       shotCounter.shotsSeries = 0;
       dataProfiles.putShotCounter(shotCounter);
-      display.invertDisplay(true);
-      delay(100);
-      display.invertDisplay(false);
+      displayHelper.blink();
       singleButton.longPressTriggerDone();
     }
 
@@ -166,38 +155,32 @@ void loop() {
       shotCounter.shotsSeries++;
       shotCounter.shotsTotal++;
       dataProfiles.putShotCounter(shotCounter);
-      display.invertDisplay(true);
-      delay(shotCounter.shotDelay);
-      display.invertDisplay(false);
+      displayHelper.blink(shotCounter.shotDelay);
     }
   }
   else if (page_index == 2) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
+    if (displayHelper.getDisplayChanged()) {
+      displayHelper.clear();
       display.println("Setup profile");
       display.println("");
       display.println("To enter setup");
       display.println("hold button");
-      display.display();
-      display_changed = false;
+      displayHelper.render();
+      displayHelper.setDisplayChanged(false);
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
       page_index = 3;
       page_changed = true;
-      display_changed = true;
-      display.invertDisplay(true);
-      delay(100);
-      display.invertDisplay(false);
+      displayHelper.setDisplayChanged(true);
+      displayHelper.blink();
       delay(500);
       singleButton.longPressTriggerDone();
     }
   }
   else if (page_index == 3) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
+    if (displayHelper.getDisplayChanged()) {
+      displayHelper.clear();
       display.println("Minimum G force");
       display.println("to count a shot:");
       display.print(shotCounter.countGforce);
@@ -205,8 +188,8 @@ void loop() {
       display.print("Last measured: ");
       display.print(gyroMeasure.getGCountedLast());
       display.print(" g");
-      display.display();
-      display_changed = false;
+      displayHelper.render();
+      displayHelper.setDisplayChanged(false);
     }
     // Shortpress handler
     if (singleButton.shortPressTrigger()) {
@@ -217,30 +200,27 @@ void loop() {
       }
       page_index = 4;
       page_changed = true;
-      display_changed = true;
+      displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
       shotCounter.countGforce = shotCounter.countGforce + 0.5 > 16 ? 0.5 : shotCounter.countGforce + 0.5;
-      display_changed = true;
-      display.invertDisplay(true);
-      delay(100);
-      display.invertDisplay(false);
+      displayHelper.setDisplayChanged(true);
+      displayHelper.blink();
       singleButton.longPressTriggerDone();
     }
   }
   else if (page_index == 4) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
+    if (displayHelper.getDisplayChanged()) {
+      displayHelper.clear();
       display.println("Minimum time");
       display.println("between shots:");
       display.println("");
       display.print(shotCounter.shotDelay);
       display.println(" ms");
-      display.display();
-      display_changed = false;
+      displayHelper.render();
+      displayHelper.setDisplayChanged(false);
     }
     // Shortpress handler
     if (singleButton.shortPressTrigger()) {
@@ -251,43 +231,38 @@ void loop() {
       }
       page_index = 5;
       page_changed = true;
-      display_changed = true;
+      displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
       shotCounter.shotDelay = shotCounter.shotDelay + 50 > 2000 ? 50 : shotCounter.shotDelay + 50;
-      display_changed = true;
-      display.invertDisplay(true);
-      delay(100);
-      display.invertDisplay(false);
+      displayHelper.setDisplayChanged(true);
+      displayHelper.blink();
       singleButton.longPressTriggerDone();
     }
   }
   else if (page_index == 5) {
-    if (display_changed) {
-      display.clearDisplay();
-      display.setCursor(0,0);
+    if (displayHelper.getDisplayChanged()) {
+      displayHelper.clear();
       display.println("Reset profile?");
       display.println("");
       display.println("To reset this profile");
       display.println("hold button");
-      display.display();
-      display_changed = false;
+      displayHelper.render();
+      displayHelper.setDisplayChanged(false);
     }
     // Shortpress handler
     if (singleButton.shortPressTrigger()) {
       page_index = 0;
       page_changed = true;
-      display_changed = true;
+      displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
       shotCounter = dataProfiles.resetShotCounter();
-      display.invertDisplay(true);
-      delay(100);
-      display.invertDisplay(false);
+      displayHelper.blink();
       singleButton.longPressTriggerDone();
     }
   }
