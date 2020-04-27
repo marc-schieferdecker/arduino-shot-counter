@@ -11,23 +11,23 @@
 #include <DataProfiles.h>
 #include <GyroMeasure.h>
 #include <DisplayHelper.h>
+#include <PageHelper.h>
 
 /**
  * Definitions
  */
+#define SHOT_COUNTER_VERSION "Version 0.01a"
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
 #define PRINT_DEBUG false
+#define PAGES_MAIN_TOTAL 3
 
 /**
  * Global variables
  */
-// Page pointer and change status
-short page_index = 0;
-bool page_changed = false;
 // Active shot counter
 ShotCounter shotCounter;
 
@@ -38,6 +38,8 @@ ShotCounter shotCounter;
 Adafruit_SSD1306 display(OLED_RESET);
 // Display helper
 DisplayHelper displayHelper(&display, SSD1306_SWITCHCAPVCC, OLED_ADDR);
+// Page helper
+PageHelper pageHelper(&display, PAGES_MAIN_TOTAL);
 // Gyro measurement
 GyroMeasure gyroMeasure(&display);
 // EEPROM crc
@@ -74,14 +76,9 @@ void setup() {
     Serial.println();
   }
 
-  // Display test
+  // Display version page
   displayHelper.clear();
-  display.setCursor(2,0);
-  display.println("Shot Counter");
-  display.setCursor(2,12);
-  display.println("Version 0.01a");
-  display.setCursor(2,24);
-  display.println("letsshootshow.de");
+  pageHelper.versionPage(SHOT_COUNTER_VERSION);
   displayHelper.render();
   delay(1000);
 }
@@ -90,16 +87,16 @@ void setup() {
 void loop() {
   // Button handler
   singleButton.loop();
+
   // Check for short press
-  if (singleButton.shortPressTrigger() && page_index <= 2) {
-      page_index = (page_index + 1) > 2 ? 0 : (page_index + 1);
-      page_changed = true;
+  if (singleButton.shortPressTrigger() && pageHelper.getPageIndex() < PAGES_MAIN_TOTAL) {
+      pageHelper.nextPage();
       displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
   }
 
   // Main page (displays data of active preset)
-  if (page_index == 0) {
+  if (pageHelper.getPageIndex() == 0) {
     // Show profile values
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
@@ -121,7 +118,7 @@ void loop() {
       singleButton.longPressTriggerDone();
     }
   }
-  else if (page_index == 1) {
+  else if (pageHelper.getPageIndex() == 1) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
       display.println("  Waiting for shots");
@@ -158,7 +155,7 @@ void loop() {
       displayHelper.blink(shotCounter.shotDelay);
     }
   }
-  else if (page_index == 2) {
+  else if (pageHelper.getPageIndex() == 2) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
       display.println("Setup profile");
@@ -170,15 +167,15 @@ void loop() {
     }
     // Longpress handler
     if (singleButton.longPressTrigger()) {
-      page_index = 3;
-      page_changed = true;
+      pageHelper.setPageIndex(3);
+      pageHelper.setPageChanged(true);
       displayHelper.setDisplayChanged(true);
       displayHelper.blink();
       delay(500);
       singleButton.longPressTriggerDone();
     }
   }
-  else if (page_index == 3) {
+  else if (pageHelper.getPageIndex() == 3) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
       display.println("Minimum G force");
@@ -198,8 +195,8 @@ void loop() {
       if (shotCounterStored.countGforce != shotCounter.countGforce) {
         dataProfiles.putShotCounter(shotCounter);
       }
-      page_index = 4;
-      page_changed = true;
+      pageHelper.setPageIndex(4);
+      pageHelper.setPageChanged(true);
       displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
     }
@@ -211,7 +208,7 @@ void loop() {
       singleButton.longPressTriggerDone();
     }
   }
-  else if (page_index == 4) {
+  else if (pageHelper.getPageIndex() == 4) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
       display.println("Minimum time");
@@ -229,8 +226,8 @@ void loop() {
       if (shotCounterStored.shotDelay != shotCounter.shotDelay) {
         dataProfiles.putShotCounter(shotCounter);
       }
-      page_index = 5;
-      page_changed = true;
+      pageHelper.setPageIndex(5);
+      pageHelper.setPageChanged(true);
       displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
     }
@@ -242,7 +239,7 @@ void loop() {
       singleButton.longPressTriggerDone();
     }
   }
-  else if (page_index == 5) {
+  else if (pageHelper.getPageIndex() == 5) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
       display.println("Reset profile?");
@@ -254,8 +251,8 @@ void loop() {
     }
     // Shortpress handler
     if (singleButton.shortPressTrigger()) {
-      page_index = 0;
-      page_changed = true;
+      pageHelper.setPageIndex(0);
+      pageHelper.setPageChanged(true);
       displayHelper.setDisplayChanged(true);
       singleButton.shortPressTriggerDone();
     }
@@ -268,8 +265,8 @@ void loop() {
   }
 
   // Delay after page change to disable multiple page changes
-  if (page_changed) {
+  if (pageHelper.getPageIndex()) {
     delay(150);
-    page_changed = false;
+    pageHelper.setPageChanged(false);
   }
 }
