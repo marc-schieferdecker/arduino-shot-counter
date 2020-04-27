@@ -1,6 +1,7 @@
-#include <EEPROM.h>
+#ifndef EEPromCRC_h
+#define EEPromCRC_h
 
-class EEPROM_crc {
+class EEPromCRC {
   private:
     // Checksum table
     const uint32_t crcTable[16] = {
@@ -34,29 +35,16 @@ class EEPROM_crc {
     
   public:
     // Constructor
-    EEPROM_crc(uint16_t crcAddress, int dataStorageStart, int dataStorageLength) {
-      // Set EEPROM address for crc storage
-      this -> crcAddress = crcAddress;
-      this -> dataStorageStart = dataStorageStart;
-      this -> dataStorageEnd = dataStorageStart + dataStorageLength;
-      // Init
-      this -> crcCheck();
-    }
+    EEPromCRC(uint16_t crcAddress, int dataStorageStart, int dataStorageLength);
 
     // Put crc value to EEPROM
-    void crcPut() {
-      this -> crcActive = this -> calculateCrc();
-      EEPROM.put(this -> crcAddress, this -> crcActive);
-    }
+    void crcPut();
     
     // Check stored crc against calculated crc
-    void crcCheck() {
-      this -> crcGet();
-      this -> crcValid = this -> crcActive == this -> calculateCrc();
-    }
+    void crcCheck();
 
     // Get state of crc
-    bool crcIsValid() {
-      return this -> crcValid;
-    }
+    bool crcIsValid();
 };
+
+#endif

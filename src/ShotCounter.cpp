@@ -7,9 +7,9 @@
 #include <Adafruit_SSD1306.h>
 // Project includes
 #include "Grafics.h"
-#include "classes/SingleButton.h"
-#include "classes/DataProfiles.h"
-#include "classes/GyroMeasure.h"
+#include <SingleButton.h>
+#include <DataProfiles.h>
+#include <GyroMeasure.h>
 
 /**
  * Definitions
@@ -41,7 +41,7 @@ GyroMeasure gyroMeasure(&display);
 
 // EEPROM pointer, data structure & checksum class
 ShotCounter shotCounter;
-EEPROM_crc eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) * PROFILES_MAX);
+EEPromCRC eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) * PROFILES_MAX);
 DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
 
 // Button handler
