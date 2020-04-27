@@ -15,8 +15,6 @@ class PageHelper {
     public:
         // Constructor
         PageHelper(Adafruit_SSD1306 *display, short max_main_pages);
-        // Show info page with version
-        void versionPage(char const *version);
         // Get page index
         short getPageIndex();
         // Set page index

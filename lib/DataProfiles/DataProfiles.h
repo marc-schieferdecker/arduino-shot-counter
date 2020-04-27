@@ -1,6 +1,7 @@
 #ifndef DataProfiles_h
 #define DataProfiles_h
 
+#include <EEProm.h>
 #include <EEPromCRC.h>
 
 struct ShotCounter {

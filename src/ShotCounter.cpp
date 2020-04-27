@@ -12,6 +12,7 @@
 #include <GyroMeasure.h>
 #include <DisplayHelper.h>
 #include <PageHelper.h>
+#include <PageContentHelper.h>
 
 /**
  * Definitions
@@ -40,6 +41,8 @@ Adafruit_SSD1306 display(OLED_RESET);
 DisplayHelper displayHelper(&display, SSD1306_SWITCHCAPVCC, OLED_ADDR);
 // Page helper
 PageHelper pageHelper(&display, PAGES_MAIN_TOTAL);
+// Page content helper
+PageContentHelper pageContentHelper(&display);
 // Gyro measurement
 GyroMeasure gyroMeasure(&display);
 // EEPROM crc
@@ -49,7 +52,7 @@ DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
 // Button handler
 SingleButton singleButton(1500);
 
-// Setup programm
+// Setup
 void setup() {
   // Setup display (SBC-OLED01)
   displayHelper.setup();
@@ -78,7 +81,7 @@ void setup() {
 
   // Display version page
   displayHelper.clear();
-  pageHelper.versionPage(SHOT_COUNTER_VERSION);
+  pageContentHelper.versionPage(SHOT_COUNTER_VERSION);
   displayHelper.render();
   delay(1000);
 }
@@ -100,12 +103,7 @@ void loop() {
     // Show profile values
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
-      display.println(shotCounter.profileName);
-      display.println("");
-      display.print("Total      ");
-      display.println(shotCounter.shotsTotal);
-      display.print("Series     ");
-      display.println(shotCounter.shotsSeries);
+      pageContentHelper.counterPage(shotCounter);
       displayHelper.render();
       displayHelper.setDisplayChanged(false);
     }
@@ -121,7 +119,7 @@ void loop() {
   else if (pageHelper.getPageIndex() == 1) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
-      display.println("  Waiting for shots");
+      pageContentHelper.waitingForShotsPage();
       displayHelper.bitmapIcon(44, 10, Aim, 40, 20);
       displayHelper.render();
       displayHelper.setDisplayChanged(false);
@@ -158,10 +156,7 @@ void loop() {
   else if (pageHelper.getPageIndex() == 2) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
-      display.println("Setup profile");
-      display.println("");
-      display.println("To enter setup");
-      display.println("hold button");
+      pageContentHelper.enterProfilePage();
       displayHelper.render();
       displayHelper.setDisplayChanged(false);
     }
@@ -178,13 +173,7 @@ void loop() {
   else if (pageHelper.getPageIndex() == 3) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
-      display.println("Minimum G force");
-      display.println("to count a shot:");
-      display.print(shotCounter.countGforce);
-      display.println(" g");
-      display.print("Last measured: ");
-      display.print(gyroMeasure.getGCountedLast());
-      display.print(" g");
+      pageContentHelper.setupGforcePage(shotCounter.countGforce, gyroMeasure.getGCountedLast());
       displayHelper.render();
       displayHelper.setDisplayChanged(false);
     }
@@ -211,11 +200,7 @@ void loop() {
   else if (pageHelper.getPageIndex() == 4) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
-      display.println("Minimum time");
-      display.println("between shots:");
-      display.println("");
-      display.print(shotCounter.shotDelay);
-      display.println(" ms");
+      pageContentHelper.setupShotDelayPage(shotCounter.shotDelay);
       displayHelper.render();
       displayHelper.setDisplayChanged(false);
     }
@@ -242,10 +227,7 @@ void loop() {
   else if (pageHelper.getPageIndex() == 5) {
     if (displayHelper.getDisplayChanged()) {
       displayHelper.clear();
-      display.println("Reset profile?");
-      display.println("");
-      display.println("To reset this profile");
-      display.println("hold button");
+      pageContentHelper.resetProfilePage();
       displayHelper.render();
       displayHelper.setDisplayChanged(false);
     }

@@ -8,15 +8,6 @@ PageHelper::PageHelper(Adafruit_SSD1306 *_display, short _max_main_pages) {
     max_main_pages = _max_main_pages;
 }
 
-void PageHelper::versionPage(char const *version) {
-  display -> setCursor(2,0);
-  display -> println("Shot Counter");
-  display -> setCursor(2,12);
-  display -> println(version);
-  display -> setCursor(2,24);
-  display -> println("letsshootshow.de");
-}
-
 short PageHelper::getPageIndex() {
     return page_index;
 }
