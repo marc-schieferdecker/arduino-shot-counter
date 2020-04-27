@@ -124,8 +124,10 @@ void GyroMeasure::sensorWake() {
             display -> setTextColor(WHITE);
             display -> setTextSize(1);
             display -> setCursor(2,0);
-            display -> println("Problem with gyro");
-            display -> println("Sleep bit still active");
+            display -> println(F("Problem with gyro"));
+            display -> println(F(""));
+            display -> println(F("Sleep still active"));
+            display -> display();
             delay(1000);
         }
         else {
