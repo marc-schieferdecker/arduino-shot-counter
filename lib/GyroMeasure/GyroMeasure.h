@@ -18,6 +18,7 @@ class GyroMeasure {
         // Constructor
         GyroMeasure(Adafruit_SSD1306 *display, bool print_debug);
 
+        // Init gyro sensor
         void init();
 
         // Get actual measurement and calculate acc max
@@ -31,6 +32,12 @@ class GyroMeasure {
 
         // Get last counted g value
         float getGCountedLast();
+
+        // Send sensor to sleep mode
+        void sensorSleep();
+
+        // Make sensor woke
+        void sensorWake();
 };
 
 #endif

@@ -28,14 +28,8 @@ void GyroMeasure::init() {
         Serial.println(F("Gyro reseted"));
     }
 
-    Wire.beginTransmission(GYRO_ADDR);
-    Wire.write(0x6B);
-    Wire.write(0); // Set sleep to 0
-    Wire.endTransmission(true);
-    delay(50);
-    if (print_debug) {
-        Serial.println(F("Gyro waked"));
-    }
+    // Wake sensor
+    sensorWake();
 
     Wire.beginTransmission(GYRO_ADDR);
     Wire.write(0x1B);
@@ -55,27 +49,8 @@ void GyroMeasure::init() {
         Serial.print(F("Gyro acc sensitivity set to 16g"));
     }
 
-    // Test if gyro is sleeping
-    Wire.beginTransmission(GYRO_ADDR);
-    Wire.write(0x6B);
-    Wire.endTransmission(false);
-    Wire.requestFrom(GYRO_ADDR, 1, true);
-    byte testSleepMode = Wire.read();
-    Wire.endTransmission(true);
-    delay(50);
-    if (print_debug) {
-        Serial.print(F("Gyro is sleeping -> "));
-        Serial.println(testSleepMode);
-    }
-    if (testSleepMode & 0x01000000) {
-        display -> clearDisplay();
-        display -> setTextColor(WHITE);
-        display -> setTextSize(1);
-        display -> setCursor(2,0);
-        display -> println("Problem with gyro");
-        display -> println("Sleep bit still active");
-        delay(5000);
-    }
+    // Let sensor sleep until it is used
+    sensorSleep();
 }
 
 float GyroMeasure::getAccelerationMax() {
@@ -108,4 +83,53 @@ void GyroMeasure::setGCountedLast(float _g_counted_last) {
 
 float GyroMeasure::getGCountedLast() {
     return g_counted_last;
+}
+
+void GyroMeasure::sensorSleep() {
+    Wire.beginTransmission(GYRO_ADDR);
+    Wire.write(0x6B);
+    Wire.write(0b01000000); // Set sleep to 1
+    Wire.endTransmission(true);
+    delay(50);
+    if (print_debug) {
+        Serial.println(F("Gyro waked"));
+    }
+}
+
+void GyroMeasure::sensorWake() {
+    Wire.beginTransmission(GYRO_ADDR);
+    Wire.write(0x6B);
+    Wire.write(0); // Set sleep to 0
+    Wire.endTransmission(true);
+    delay(50);
+    if (print_debug) {
+        Serial.println(F("Gyro waked"));
+    }
+
+    // Test if gyro is sleeping
+    while(1) {
+        Wire.beginTransmission(GYRO_ADDR);
+        Wire.write(0x6B);
+        Wire.endTransmission(false);
+        Wire.requestFrom(GYRO_ADDR, 1, true);
+        byte testSleepMode = Wire.read();
+        Wire.endTransmission(true);
+        delay(50);
+        if (print_debug) {
+            Serial.print(F("Gyro is sleeping -> "));
+            Serial.println(testSleepMode);
+        }
+        if (testSleepMode & 0x01000000) {
+            display -> clearDisplay();
+            display -> setTextColor(WHITE);
+            display -> setTextSize(1);
+            display -> setCursor(2,0);
+            display -> println("Problem with gyro");
+            display -> println("Sleep bit still active");
+            delay(1000);
+        }
+        else {
+            break;
+        }
+    }
 }

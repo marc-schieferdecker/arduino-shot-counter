@@ -132,6 +132,9 @@ void loop() {
   }
   else if (pageHelper.getPageIndex() == 1) {
     if (displayHelper.getDisplayChanged()) {
+      // Wake sensor
+      gyroMeasure.sensorWake();
+      // Display waiting for shots page
       displayHelper.clear();
       pageContentHelper.waitingForShotsPage();
       displayHelper.bitmapIcon(44, 10, Aim, 40, 20);
@@ -169,6 +172,9 @@ void loop() {
   }
   else if (pageHelper.getPageIndex() == 2) {
     if (displayHelper.getDisplayChanged()) {
+      // Set sensor to sleep for lower power consumption
+      gyroMeasure.sensorSleep();
+      // Display enter setup page
       displayHelper.clear();
       pageContentHelper.enterProfilePage();
       displayHelper.render();
