@@ -9,6 +9,9 @@ class SingleButton {
         bool trigger_longpress = false;
         unsigned long pressed_start = 0;
         unsigned int pressed_millis_for_longpress = 1000;
+        byte button_pin;
+        byte button_press_val;
+        byte button_release_val;
 
         void onPress() {
             this -> pressed = true;
@@ -34,7 +37,7 @@ class SingleButton {
 
     public:
         // Constructor
-        SingleButton(unsigned int pressed_millis_for_longpress);
+        SingleButton(unsigned int pressed_millis_for_longpress, byte button_pin, byte button_press_val, byte button_release_val);
 
         // Method for loop
         void loop();

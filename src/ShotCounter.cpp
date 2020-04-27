@@ -25,6 +25,9 @@
 #define PROFILES_MAX 6
 #define PRINT_DEBUG false
 #define PAGES_MAIN_TOTAL 3
+#define BUTTON_PIN_REG PINB
+#define BUTTON_PRESS_VAL 0
+#define BUTTON_RELEASE_VAL 4
 
 /**
  * Global variables
@@ -50,7 +53,7 @@ EEPromCRC eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) 
 // Data profiles
 DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
 // Button handler
-SingleButton singleButton(1500);
+SingleButton singleButton(1500, BUTTON_PIN_REG, BUTTON_PRESS_VAL, BUTTON_RELEASE_VAL);
 
 // Setup
 void setup() {
