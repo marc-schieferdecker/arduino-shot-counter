@@ -10,19 +10,19 @@ PageContentHelper::PageContentHelper(Adafruit_SSD1306 *_display) {
 
 void PageContentHelper::versionPage(char const *version) {
   display -> setCursor(2,0);
-  display -> println("Shot Counter");
+  display -> println(F("Shot Counter"));
   display -> setCursor(2,12);
   display -> println(version);
   display -> setCursor(2,24);
-  display -> println("letsshootshow.de");
+  display -> println(F("letsshootshow.de"));
 }
 
 void PageContentHelper::counterPage(ShotCounter shotCounter) {
     display -> println(shotCounter.profileName);
-    display -> println("");
-    display -> print("Total      ");
+    display -> println(F(""));
+    display -> print(F("Total      "));
     display -> println(shotCounter.shotsTotal);
-    display -> print("Series     ");
+    display -> print(F("Series     "));
     display -> println(shotCounter.shotsSeries);
 }
 
@@ -31,33 +31,33 @@ void PageContentHelper::waitingForShotsPage() {
 }
 
 void PageContentHelper::enterProfilePage() {
-    display -> println("Setup profile");
-    display -> println("");
-    display -> println("To enter setup");
-    display -> println("hold button");
+    display -> println(F("Setup profile"));
+    display -> println(F(""));
+    display -> println(F("To enter setup"));
+    display -> println(F("hold button"));
 }
 
 void PageContentHelper::setupGforcePage(float countGforce, float gforcelast) {
-    display -> println("Minimum G force");
-    display -> println("to count a shot:");
+    display -> println(F("Minimum G force"));
+    display -> println(F("to count a shot:"));
     display -> print(countGforce);
-    display -> println(" g");
-    display -> print("Last measured: ");
+    display -> println(F(" g"));
+    display -> print(F("Last measured: "));
     display -> print(gforcelast);
-    display -> print(" g");
+    display -> print(F(" g"));
 }
 
 void PageContentHelper::setupShotDelayPage(int shotDelay) {
-    display -> println("Minimum time");
-    display -> println("between shots:");
-    display -> println("");
+    display -> println(F("Minimum time"));
+    display -> println(F("between shots:"));
+    display -> println(F(""));
     display -> print(shotDelay);
-    display -> println(" ms");
+    display -> println(F(" ms"));
 }
 
 void PageContentHelper::resetProfilePage() {
-    display -> println("Reset profile?");
-    display -> println("");
-    display -> println("To reset this profile");
-    display -> println("hold button");
+    display -> println(F("Reset profile?"));
+    display -> println(F(""));
+    display -> println(F("To reset this profile"));
+    display -> println(F("hold button"));
 }

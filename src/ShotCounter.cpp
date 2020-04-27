@@ -21,6 +21,14 @@
 #define PRINT_DEBUG false
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C
+#ifdef GYRO_ADDR
+  #undef GYRO_ADDR
+  #define GYRO_ADDR 0x68 // AD0 low 0x68, AD0 high 0x69
+#endif
+#ifdef GYRO_ACC_REGISTER_START
+  #undef GYRO_ACC_REGISTER_START
+  #define GYRO_ACC_REGISTER_START 0x43
+#endif
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
