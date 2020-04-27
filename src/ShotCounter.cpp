@@ -3,22 +3,19 @@
  */
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <SPI.h>
-#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 // Project includes
 #include "Grafics.h"
 #include "classes/SingleButton.h"
 #include "classes/DataProfiles.h"
+#include "classes/GyroMeasure.h"
 
 /**
  * Definitions
  */
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C
-#define GYRO_ADDR 0x68 // AD0 low 0x68, AD0 high 0x69
-#define GYRO_ACC_REGISTER_START 0x43
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
@@ -27,8 +24,6 @@
 /**
  * Global variables
  */
-// Gyro
-int16_t gyro_g_x, gyro_g_y, gyro_g_z;
 // Selected profile
 short profile_index = 0;
 // Page pointer and change status
@@ -40,6 +35,9 @@ bool display_changed = true;
 
 // Display class
 Adafruit_SSD1306 display(OLED_RESET);
+
+// Gyre measurement
+GyroMeasure gyroMeasure(&display);
 
 // EEPROM pointer, data structure & checksum class
 ShotCounter shotCounter;
@@ -65,65 +63,8 @@ void setup() {
     Serial.println("Setup serial with 9600 baud");
   }
 
-  // Setup gyro (MPU6050)
-  Wire.begin();
-  Wire.beginTransmission(GYRO_ADDR);
-  Wire.write(0x6B);
-  Wire.write(0b10000000); // Reset gyro to default
-  Wire.endTransmission(true);
-  delay(50);
-  if (PRINT_DEBUG) {
-    Serial.println("Gyro reseted");
-  }
-
-  Wire.beginTransmission(GYRO_ADDR);
-  Wire.write(0x6B);
-  Wire.write(0); // Set sleep to 0
-  Wire.endTransmission(true);
-  delay(50);
-  if (PRINT_DEBUG) {
-    Serial.println("Gyro waked");
-  }
-
-  Wire.beginTransmission(GYRO_ADDR);
-  Wire.write(0x1B);
-  Wire.write(0b00011000); // Set max gyro scale
-  Wire.endTransmission(true);
-  delay(50);
-  if (PRINT_DEBUG) {
-    Serial.println("Gyro set to max scale");
-  }
-
-  Wire.beginTransmission(GYRO_ADDR);
-  Wire.write(0x1C);
-  Wire.write(0b00011000); // Set acc to 16g
-  Wire.endTransmission(true);
-  delay(50);
-  if (PRINT_DEBUG) {
-    Serial.print("Gyro acc sensitivity set to 16g");
-  }
-
-  // Test if gyro is sleeping
-  Wire.beginTransmission(GYRO_ADDR);
-  Wire.write(0x6B);
-  Wire.endTransmission(false);
-  Wire.requestFrom(GYRO_ADDR, 1, true);
-  byte testSleepMode = Wire.read();
-  Wire.endTransmission(true);
-  delay(50);
-  if (PRINT_DEBUG) {
-    Serial.print("Gyro is sleeping -> ");
-    Serial.println(testSleepMode);
-  }
-  if (testSleepMode & 0x01000000) {
-    display.clearDisplay();
-    display.setTextColor(WHITE);
-    display.setTextSize(1);
-    display.setCursor(2,0);
-    display.println("Problem with gyro");
-    display.println("Sleep bit still active");
-    delay(5000);
-  }
+  // Init gyro senson
+  gyroMeasure.init();
 
   // Init data
   dataProfiles.init();
@@ -207,28 +148,20 @@ void loop() {
       singleButton.longPressTriggerDone();
     }
 
-    // Measure gyro
-    Wire.beginTransmission(GYRO_ADDR);
-    Wire.write(GYRO_ACC_REGISTER_START);
-    Wire.endTransmission(false);
-    Wire.requestFrom(GYRO_ADDR, 6, true);
-    gyro_g_x = Wire.read()<<8 | Wire.read();
-    gyro_g_y = Wire.read()<<8 | Wire.read();
-    gyro_g_z = Wire.read()<<8 | Wire.read();
-    Wire.endTransmission(true);
-
-    // Always use positive values, calculate real g values from 0 to 16 (sensor max)
-    float gyro_acc_x = (float)abs(gyro_g_x) / 2048;
-    float gyro_acc_y = (float)abs(gyro_g_y) / 2048;
-    float gyro_acc_z = (float)abs(gyro_g_z) / 2048;
-    float gyro_max = max(max(gyro_acc_x, gyro_acc_y), gyro_acc_z);
+    // Get value from sesnsor
+    float g_max = gyroMeasure.getAccelerationMax();
 
     // Count shots depending on g force setting of profile
-    if (gyro_max >= shotCounter.countGforce) {
+    if (g_max >= shotCounter.countGforce) {
+      // Store counted g value for later usage
+      gyroMeasure.setGCountedLast(g_max);
+
+      // Debug
       if (PRINT_DEBUG) {
         Serial.print("SHOT COUNTED ");
-        Serial.println(gyro_max);
+        Serial.println(g_max);
       }
+
       // Delay to prevent multiple counts
       shotCounter.shotsSeries++;
       shotCounter.shotsTotal++;
@@ -267,9 +200,11 @@ void loop() {
       display.setCursor(0,0);
       display.println("Minimum G force");
       display.println("to count a shot:");
-      display.println();
       display.print(shotCounter.countGforce);
       display.println(" g");
+      display.print("Last measured: ");
+      display.print(gyroMeasure.getGCountedLast());
+      display.print(" g");
       display.display();
       display_changed = false;
     }
