@@ -7,7 +7,3 @@ Hardware components used:
 * Joy-it SBC-OLED01
 * Joy-it MPU0650
 * Joy-it KY004TM
-
-Source code will need refactoring but is working - sorry I did this quick and dirty.
-
-`¯\_(ツ)_/¯`

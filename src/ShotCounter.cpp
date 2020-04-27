@@ -17,7 +17,7 @@
 /**
  * Definitions
  */
-#define SHOT_COUNTER_VERSION "Version 0.01a"
+#define SHOT_COUNTER_VERSION "Version 0.02a"
 #define PRINT_DEBUG false
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C
@@ -53,16 +53,16 @@ ShotCounter shotCounter;
 Adafruit_SSD1306 display(OLED_RESET);
 // Display helper
 DisplayHelper displayHelper(&display, SSD1306_SWITCHCAPVCC, OLED_ADDR);
+// Page content helper
+PageContentHelper pageContentHelper(&display);
 // Gyro measurement
-GyroMeasure gyroMeasure(&display, PRINT_DEBUG);
+GyroMeasure gyroMeasure(&pageContentHelper, PRINT_DEBUG);
 // EEPROM crc
 EEPromCRC eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) * PROFILES_MAX);
 // Data profiles
 DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
 // Page helper
 PageHelper pageHelper(&display, PAGES_MAIN_TOTAL);
-// Page content helper
-PageContentHelper pageContentHelper(&display);
 // Button handler
 SingleButton singleButton(1500, BUTTON_PRESS_VAL, BUTTON_RELEASE_VAL);
 

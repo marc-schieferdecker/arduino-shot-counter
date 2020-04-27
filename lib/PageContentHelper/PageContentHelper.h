@@ -26,6 +26,8 @@ class PageContentHelper {
         void setupShotDelayPage(int shotDelay);
         // Show reset profile page
         void resetProfilePage();
+        // Show gyro sensor error page
+        void sensorErrorPage();
 };
 
 #endif

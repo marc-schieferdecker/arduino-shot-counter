@@ -9,12 +9,12 @@ PageContentHelper::PageContentHelper(Adafruit_SSD1306 *_display) {
 }
 
 void PageContentHelper::versionPage(char const *version) {
-  display -> setCursor(2,0);
-  display -> println(F("Shot Counter"));
-  display -> setCursor(2,12);
-  display -> println(version);
-  display -> setCursor(2,24);
-  display -> println(F("letsshootshow.de"));
+    display -> setCursor(2,0);
+    display -> println(F("Shot Counter"));
+    display -> setCursor(2,12);
+    display -> println(version);
+    display -> setCursor(2,24);
+    display -> println(F("letsshootshow.de"));
 }
 
 void PageContentHelper::counterPage(ShotCounter shotCounter) {
@@ -60,4 +60,15 @@ void PageContentHelper::resetProfilePage() {
     display -> println(F(""));
     display -> println(F("To reset this profile"));
     display -> println(F("hold button"));
+}
+
+void PageContentHelper::sensorErrorPage() {
+    display -> clearDisplay();
+    display -> setTextColor(WHITE);
+    display -> setTextSize(1);
+    display -> setCursor(2,0);
+    display -> println(F("Problem with gyro"));
+    display -> println(F(""));
+    display -> println(F("Sleep still active"));
+    display -> display();
 }

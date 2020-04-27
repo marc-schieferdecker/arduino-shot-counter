@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <PageContentHelper.h>
 #include <GyroMeasure.h>
 
 #ifndef GYRO_ADDR
@@ -11,8 +10,8 @@
     #define GYRO_ACC_REGISTER_START 0x43
 #endif
 
-GyroMeasure::GyroMeasure(Adafruit_SSD1306 *_display, bool _print_debug) {
-    display = _display;
+GyroMeasure::GyroMeasure(PageContentHelper *_pageContentHelper, bool _print_debug) {
+    pageContentHelper = _pageContentHelper;
     print_debug = _print_debug;
 }
 
@@ -120,14 +119,7 @@ void GyroMeasure::sensorWake() {
             Serial.println(testSleepMode);
         }
         if (testSleepMode & 0x01000000) {
-            display -> clearDisplay();
-            display -> setTextColor(WHITE);
-            display -> setTextSize(1);
-            display -> setCursor(2,0);
-            display -> println(F("Problem with gyro"));
-            display -> println(F(""));
-            display -> println(F("Sleep still active"));
-            display -> display();
+            pageContentHelper -> sensorErrorPage();
             delay(1000);
         }
         else {
