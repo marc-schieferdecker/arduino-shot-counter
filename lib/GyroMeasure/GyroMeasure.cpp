@@ -10,12 +10,10 @@
 #ifndef GYRO_ACC_REGISTER_START
     #define GYRO_ACC_REGISTER_START 0x43
 #endif
-#ifndef PRINT_DEBUG
-    #define PRINT_DEBUG false
-#endif
 
-GyroMeasure::GyroMeasure(Adafruit_SSD1306 *_display) {
+GyroMeasure::GyroMeasure(Adafruit_SSD1306 *_display, bool _print_debug) {
     display = _display;
+    print_debug = _print_debug;
 }
 
 void GyroMeasure::init() {
@@ -26,8 +24,8 @@ void GyroMeasure::init() {
     Wire.write(0b10000000); // Reset gyro to default
     Wire.endTransmission(true);
     delay(50);
-    if (PRINT_DEBUG) {
-        Serial.println("Gyro reseted");
+    if (print_debug) {
+        Serial.println(F("Gyro reseted"));
     }
 
     Wire.beginTransmission(GYRO_ADDR);
@@ -35,8 +33,8 @@ void GyroMeasure::init() {
     Wire.write(0); // Set sleep to 0
     Wire.endTransmission(true);
     delay(50);
-    if (PRINT_DEBUG) {
-        Serial.println("Gyro waked");
+    if (print_debug) {
+        Serial.println(F("Gyro waked"));
     }
 
     Wire.beginTransmission(GYRO_ADDR);
@@ -44,8 +42,8 @@ void GyroMeasure::init() {
     Wire.write(0b00011000); // Set max gyro scale
     Wire.endTransmission(true);
     delay(50);
-    if (PRINT_DEBUG) {
-        Serial.println("Gyro set to max scale");
+    if (print_debug) {
+        Serial.println(F("Gyro set to max scale"));
     }
 
     Wire.beginTransmission(GYRO_ADDR);
@@ -53,8 +51,8 @@ void GyroMeasure::init() {
     Wire.write(0b00011000); // Set acc to 16g
     Wire.endTransmission(true);
     delay(50);
-    if (PRINT_DEBUG) {
-        Serial.print("Gyro acc sensitivity set to 16g");
+    if (print_debug) {
+        Serial.print(F("Gyro acc sensitivity set to 16g"));
     }
 
     // Test if gyro is sleeping
@@ -65,8 +63,8 @@ void GyroMeasure::init() {
     byte testSleepMode = Wire.read();
     Wire.endTransmission(true);
     delay(50);
-    if (PRINT_DEBUG) {
-        Serial.print("Gyro is sleeping -> ");
+    if (print_debug) {
+        Serial.print(F("Gyro is sleeping -> "));
         Serial.println(testSleepMode);
     }
     if (testSleepMode & 0x01000000) {

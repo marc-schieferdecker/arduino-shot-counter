@@ -18,12 +18,12 @@
  * Definitions
  */
 #define SHOT_COUNTER_VERSION "Version 0.01a"
+#define PRINT_DEBUG false
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
-#define PRINT_DEBUG false
 #define PAGES_MAIN_TOTAL 3
 #ifdef BUTTON_PIN_REG
   #undef BUTTON_PIN_REG
@@ -50,7 +50,7 @@ PageHelper pageHelper(&display, PAGES_MAIN_TOTAL);
 // Page content helper
 PageContentHelper pageContentHelper(&display);
 // Gyro measurement
-GyroMeasure gyroMeasure(&display);
+GyroMeasure gyroMeasure(&display, PRINT_DEBUG);
 // EEPROM crc
 EEPromCRC eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) * PROFILES_MAX);
 // Data profiles
@@ -69,7 +69,7 @@ void setup() {
   if (PRINT_DEBUG) {
     Serial.begin(9600);
     delay(50);
-    Serial.println("Setup serial with 9600 baud");
+    Serial.println(F("Setup serial with 9600 baud"));
   }
 
   // Init gyro senson
@@ -80,7 +80,7 @@ void setup() {
 
   // Print state of EEPROM
   if (PRINT_DEBUG) {
-    Serial.print("CRC EEPROM STATE ");
+    Serial.print(F("CRC EEPROM STATE "));
     Serial.print(eepromCrc.crcIsValid());
     Serial.println();
   }
@@ -148,7 +148,7 @@ void loop() {
 
       // Debug
       if (PRINT_DEBUG) {
-        Serial.print("SHOT COUNTED ");
+        Serial.print(F("SHOT COUNTED "));
         Serial.println(g_max);
       }
 

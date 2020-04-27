@@ -6,6 +6,7 @@
 
 class GyroMeasure {
     private:
+        bool print_debug;
         int16_t gyro_g_x;
         int16_t gyro_g_y;
         int16_t gyro_g_z;
@@ -15,7 +16,7 @@ class GyroMeasure {
 
     public:
         // Constructor
-        GyroMeasure(Adafruit_SSD1306 *display);
+        GyroMeasure(Adafruit_SSD1306 *display, bool print_debug);
 
         void init();
 

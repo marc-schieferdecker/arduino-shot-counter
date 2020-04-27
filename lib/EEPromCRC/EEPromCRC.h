@@ -1,6 +1,8 @@
 #ifndef EEPromCRC_h
 #define EEPromCRC_h
 
+#include <EEProm.h>
+
 class EEPromCRC {
   private:
     // Checksum table
