@@ -2,52 +2,51 @@
 #define SingleButton_h
 
 class SingleButton {
-    private:
-        bool pressed = false;
-        bool is_longpress = false;
-        bool trigger_shortpress = false;
-        bool trigger_longpress = false;
-        unsigned long pressed_start = 0;
-        unsigned int pressed_millis_for_longpress = 1000;
-        byte button_press_val;
-        byte button_release_val;
+   private:
+    bool pressed = false;
+    bool isLongpress = false;
+    bool triggerShortpress = false;
+    bool triggerLongpress = false;
+    unsigned long pressedStart = 0;
+    unsigned int pressedMillisForLongpress = 1000;
+    byte buttonPressVal;
+    byte buttonReleaseVal;
 
-        void onPress() {
-            this -> pressed = true;
-            this -> pressed_start = millis();
+    void onPress() {
+        this->pressed = true;
+        this->pressedStart = millis();
+    }
+
+    void onLongPress() {
+        this->pressedStart = millis();
+        this->isLongpress = true;
+        this->triggerLongpress = true;
+    }
+
+    void onRelease() {
+        this->pressed = false;
+        // Short press: Change page
+        if (!this->isLongpress) {
+            this->triggerShortpress = true;
+        } else {
+            this->isLongpress = false;
         }
+    }
 
-        void onLongPress() {
-            this -> pressed_start = millis();
-            this -> is_longpress = true;
-            this -> trigger_longpress = true;
-        }
+   public:
+    // Constructor
+    SingleButton(unsigned int pressedMillisForLongpress, byte buttonPressVal, byte buttonReleaseVal);
 
-        void onRelease() {
-            this -> pressed = false;
-            // Short press: Change page
-            if (!this -> is_longpress) {
-                this -> trigger_shortpress = true;
-            }
-            else {
-                this -> is_longpress = false;
-            }
-        }
+    // Method for loop
+    void loop();
 
-    public:
-        // Constructor
-        SingleButton(unsigned int pressed_millis_for_longpress, byte button_press_val, byte button_release_val);
+    bool shortPressTrigger();
 
-        // Method for loop
-        void loop();
+    void shortPressTriggerDone();
 
-        bool shortPressTrigger();
+    bool longPressTrigger();
 
-        void shortPressTriggerDone();
-
-        bool longPressTrigger();
-
-        void longPressTriggerDone();
+    void longPressTriggerDone();
 };
 
 #endif

@@ -4,39 +4,39 @@
 #include <PageContentHelper.h>
 
 class GyroMeasure {
-    private:
-        bool print_debug;
-        int16_t gyro_g_x;
-        int16_t gyro_g_y;
-        int16_t gyro_g_z;
-        float g_max = 0;
-        float g_counted_last = 0;
-        PageContentHelper *pageContentHelper;
+   private:
+    bool printDebug;
+    int16_t gyroGX;
+    int16_t gyroGY;
+    int16_t gyroGZ;
+    float gMax = 0;
+    float gMaxCountedLast = 0;
+    PageContentHelper *pageContentHelper;
 
-    public:
-        // Constructor
-        GyroMeasure(PageContentHelper *pageContentHelper, bool print_debug);
+   public:
+    // Constructor
+    GyroMeasure(PageContentHelper *pageContentHelper, bool printDebug);
 
-        // Init gyro sensor
-        void init();
+    // Init gyro sensor
+    void init();
 
-        // Get actual measurement and calculate acc max
-        float getAccelerationMax();
+    // Get actual measurement and calculate acc max
+    float getAccelerationMax();
 
-        // Get the last acc max value measured
-        float getLastAccelerationMax();
+    // Get the last acc max value measured
+    float getLastAccelerationMax();
 
-        // Set last counted g value
-        void setGCountedLast(float g_counted_last);
+    // Set last counted g value
+    void setGCountedLast(float gMaxCountedLast);
 
-        // Get last counted g value
-        float getGCountedLast();
+    // Get last counted g value
+    float getGCountedLast();
 
-        // Send sensor to sleep mode
-        void sensorSleep();
+    // Send sensor to sleep mode
+    void sensorSleep();
 
-        // Make sensor woke
-        void sensorWake();
+    // Make sensor woke
+    void sensorWake();
 };
 
 #endif

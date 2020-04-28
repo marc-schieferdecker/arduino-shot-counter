@@ -1,31 +1,30 @@
-#include <Arduino.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Arduino.h>
 #include <PageHelper.h>
 
-PageHelper::PageHelper(Adafruit_SSD1306 *_display, short _max_main_pages) {
+PageHelper::PageHelper(Adafruit_SSD1306 *_display, short _maxMainPages) {
     display = _display;
-    max_main_pages = _max_main_pages;
+    maxMainPages = _maxMainPages;
 }
 
 short PageHelper::getPageIndex() {
-    return page_index;
+    return pageIndex;
 }
 
-void PageHelper::setPageIndex(short _page_index) {
-    page_index = _page_index;
+void PageHelper::setPageIndex(short _pageIndex) {
+    pageIndex = _pageIndex;
 }
 
 void PageHelper::nextPage() {
-    page_index = (page_index + 1) >= max_main_pages ? 0 : (page_index + 1);
-    page_changed = true;
+    pageIndex = (pageIndex + 1) >= maxMainPages ? 0 : (pageIndex + 1);
+    pageChanged = true;
 }
-
 
 bool PageHelper::getPageChanged() {
-    return page_changed;
+    return pageChanged;
 }
 
-void PageHelper::setPageChanged(bool _page_changed) {
-    page_changed = _page_changed;
+void PageHelper::setPageChanged(bool _pageChanged) {
+    pageChanged = _pageChanged;
 }

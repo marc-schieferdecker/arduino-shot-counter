@@ -1,43 +1,43 @@
 #include <Arduino.h>
-#include <Wire.h>
 #include <SingleButton.h>
+#include <Wire.h>
 
 #ifndef BUTTON_PIN_REG
-    #define BUTTON_PIN_REG PINB
+#define BUTTON_PIN_REG PINB
 #endif
 
-SingleButton::SingleButton(unsigned int _pressed_millis_for_longpress, byte _button_press_val, byte _button_release_val) {
-    pressed_millis_for_longpress = _pressed_millis_for_longpress;
-    button_press_val = _button_press_val;
-    button_release_val = _button_release_val;
+SingleButton::SingleButton(unsigned int _pressedMillisForLongpress, byte _buttonPressVal, byte _buttonReleaseVal) {
+    pressedMillisForLongpress = _pressedMillisForLongpress;
+    buttonPressVal = _buttonPressVal;
+    buttonReleaseVal = _buttonReleaseVal;
 }
 
 void SingleButton::loop() {
     // Change page via button press (trigger on release)
-    if (BUTTON_PIN_REG == button_press_val && !pressed) {
+    if (BUTTON_PIN_REG == buttonPressVal && !pressed) {
         onPress();
     }
     // Check for long press
-    if (pressed && pressed_start < (millis() - pressed_millis_for_longpress)) {
+    if (pressed && pressedStart < (millis() - pressedMillisForLongpress)) {
         onLongPress();
     }
-    if (BUTTON_PIN_REG == button_release_val && pressed) {
+    if (BUTTON_PIN_REG == buttonReleaseVal && pressed) {
         onRelease();
     }
 }
 
 bool SingleButton::shortPressTrigger() {
-    return trigger_shortpress;
+    return triggerShortpress;
 }
 
 void SingleButton::shortPressTriggerDone() {
-    trigger_shortpress = false;
+    triggerShortpress = false;
 }
 
 bool SingleButton::longPressTrigger() {
-    return trigger_longpress;
+    return triggerLongpress;
 }
 
 void SingleButton::longPressTriggerDone() {
-    trigger_longpress = false;
+    triggerLongpress = false;
 }
