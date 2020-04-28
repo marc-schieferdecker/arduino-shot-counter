@@ -10,6 +10,29 @@ Hardware components used:
 * Joy-it MPU6050
 * Joy-it KY004TM
 
+## Wireing
+
+Arduino
+* Attach a power source to VIN (+) and GND (-)
+* (or use usb power for testing)
+
+SBC-OLED01
+* GND -> Arduino GND
+* VCC -> Arduino 5V
+* SCL -> Arduino A4
+* SDA -> Arduino A5
+
+MPU6050
+* GND and AD0 -> Arduino GND
+* VCC -> Arduino 5V
+* SDA -> Arduino A5
+* SCL -> Arduino A4
+
+KY004TM
+* Pin "-" -> Arduino GND
+* Middle pin -> Arduino 5V
+* Pin "S" -> Arduino D10
+
 ## Visual Studio Code settings
 
 VSCODE C++ Clang_format_fallback Style
