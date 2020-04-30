@@ -76,7 +76,7 @@ void setup() {
         Serial.println(F("Setup serial with 9600 baud"));
     }
 
-    // Init gyro senson
+    // Init gyro sensor
     gyroMeasure.init();
 
     // Init data & load shot counter from EEPROM
@@ -144,7 +144,7 @@ void loop() {
             singleButton.longPressTriggerDone();
         }
 
-        // Get value from sesnsor
+        // Get value from sensor
         float gMax = gyroMeasure.getAccelerationMax();
 
         // Count shots depending on g force setting of profile
