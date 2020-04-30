@@ -10,7 +10,7 @@ GyroMeasure::GyroMeasure(int _gyroAddress, int _gyroAccRegisterStart, PageConten
     printDebug = _printDebug;
 }
 
-void GyroMeasure::init() {
+void GyroMeasure::setup() {
     // Setup gyro (MPU6050)
     Wire.begin();
     Wire.beginTransmission(gyroAddress);

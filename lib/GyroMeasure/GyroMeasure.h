@@ -20,7 +20,7 @@ class GyroMeasure {
     GyroMeasure(int gyroAddress, int gyroAccRegisterStart, PageContentHelper *pageContentHelper, bool printDebug);
 
     // Init gyro sensor
-    void init();
+    void setup();
 
     // Get actual measurement and calculate acc max
     float getAccelerationMax();

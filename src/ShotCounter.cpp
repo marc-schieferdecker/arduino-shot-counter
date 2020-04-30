@@ -1,6 +1,7 @@
 /**
  * Includes
  */
+// Libs
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Arduino.h>
@@ -10,8 +11,10 @@
 #include <DisplayHelper.h>
 #include <GyroMeasure.h>
 #include <PageContentHelper.h>
+#include <PageController.h>
 #include <PageHelper.h>
 #include <SingleButton.h>
+// Includes
 #include "Grafics.h"
 
 /**
@@ -34,15 +37,7 @@
 #define PAGES_MAIN_TOTAL 3
 // Single button pin and bitmask
 #define BUTTON_PIN_REG PINB
-#define BUTTON_PIN_BITMASK 0b00000100 // Pin D10 = bit 2
-
-/**
- * Global variables
- */
-// Active shot counter
-ShotCounter shotCounter;
-float gMaxCalibration = 0;
-unsigned long calibrationDisplayUpdateDelay = 0;
+#define BUTTON_PIN_BITMASK 0b00000100  // Pin D10 = bit 2
 
 /**
  * Instanciate classes
@@ -63,6 +58,8 @@ DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
 PageHelper pageHelper(&display, PAGES_MAIN_TOTAL);
 // Button handler
 SingleButton singleButton(1500, &BUTTON_PIN_REG, BUTTON_PIN_BITMASK);
+// Main controller
+PageController pageController(&dataProfiles, &displayHelper, &gyroMeasure, &pageContentHelper, &pageHelper, &singleButton, PRINT_DEBUG);
 
 // Setup
 void setup() {
@@ -79,10 +76,13 @@ void setup() {
     }
 
     // Init gyro sensor
-    gyroMeasure.init();
+    gyroMeasure.setup();
 
-    // Init data & load shot counter from EEPROM
-    shotCounter = dataProfiles.init();
+    // Init data storage
+    dataProfiles.setup();
+
+    // Init page controller
+    pageController.setup();
 
     // Print state of EEPROM
     if (PRINT_DEBUG) {
@@ -112,189 +112,19 @@ void loop() {
 
     // Main page (displays data of active preset)
     if (pageHelper.getPageIndex() == 0) {
-        // Show profile values
-        if (displayHelper.getDisplayChanged()) {
-            displayHelper.clear();
-            pageContentHelper.counterPage(shotCounter);
-            displayHelper.render();
-            displayHelper.setDisplayChanged(false);
-        }
-        // Longpress handler
-        if (singleButton.longPressTrigger()) {
-            dataProfiles.nextShotCounter();
-            shotCounter = dataProfiles.getShotCounter();
-            displayHelper.setDisplayChanged(true);
-            displayHelper.blink();
-            singleButton.longPressTriggerDone();
-        }
+        pageController.counterPage();
     } else if (pageHelper.getPageIndex() == 1) {
-        if (displayHelper.getDisplayChanged()) {
-            // Wake sensor
-            gyroMeasure.sensorWake();
-            // Display waiting for shots page
-            displayHelper.clear();
-            pageContentHelper.waitingForShotsPage();
-            displayHelper.bitmapIcon(44, 10, Aim, 40, 20);
-            displayHelper.render();
-            displayHelper.setDisplayChanged(false);
-        }
-        // Longpress handler
-        if (singleButton.longPressTrigger()) {
-            shotCounter.shotsSeries = 0;
-            dataProfiles.putShotCounter(shotCounter);
-            displayHelper.blink();
-            singleButton.longPressTriggerDone();
-        }
-
-        // Get value from sensor
-        float gMax = gyroMeasure.getAccelerationMax();
-
-        // Count shots depending on g force setting of profile
-        if (gMax >= shotCounter.countGforce) {
-            // Store counted g value for later usage
-            gyroMeasure.setGCountedLast(gMax);
-
-            // Debug
-            if (PRINT_DEBUG) {
-                Serial.print(F("SHOT COUNTED "));
-                Serial.println(gMax);
-            }
-
-            // Delay to prevent multiple counts
-            shotCounter.shotsSeries++;
-            shotCounter.shotsTotal++;
-            dataProfiles.putShotCounter(shotCounter);
-            displayHelper.blink(shotCounter.shotDelay);
-        }
+        pageController.waitingForShotsPage(Aim);
     } else if (pageHelper.getPageIndex() == 2) {
-        if (displayHelper.getDisplayChanged()) {
-            // Set sensor to sleep for lower power consumption
-            gyroMeasure.sensorSleep();
-            // Display enter setup page
-            displayHelper.clear();
-            pageContentHelper.enterProfilePage();
-            displayHelper.render();
-            displayHelper.setDisplayChanged(false);
-        }
-        // Longpress handler
-        if (singleButton.longPressTrigger()) {
-            pageHelper.setPageIndex(3);
-            pageHelper.setPageChanged(true);
-            displayHelper.setDisplayChanged(true);
-            displayHelper.blink();
-            delay(500);
-            singleButton.longPressTriggerDone();
-        }
+        pageController.enterProfilePage();
     } else if (pageHelper.getPageIndex() == 3) {
-        if (displayHelper.getDisplayChanged() && calibrationDisplayUpdateDelay < millis()) {
-            // Wake sensor
-            gyroMeasure.sensorWake();
-            // Show calibration page
-            displayHelper.clear();
-            pageContentHelper.calibrationPage(gMaxCalibration);
-            displayHelper.render();
-            displayHelper.setDisplayChanged(false);
-        }
-
-        // Get value from sensor and update view if new max value is set
-        float gMax = gyroMeasure.getAccelerationMax();
-        if (gMax > gMaxCalibration) {
-            gMaxCalibration = gMax;
-            // Update display after 1 second to keep fast measuring for the next 1 second
-            calibrationDisplayUpdateDelay = millis() + 1000;
-            displayHelper.setDisplayChanged(true);
-        }
-
-        // Shortpress handler
-        if (singleButton.shortPressTrigger()) {
-            pageHelper.setPageIndex(4);
-            pageHelper.setPageChanged(true);
-            displayHelper.setDisplayChanged(true);
-            singleButton.shortPressTriggerDone();
-        }
-        // Longpress handler
-        if (singleButton.longPressTrigger()) {
-            gMaxCalibration = 0;
-            displayHelper.setDisplayChanged(true);
-            displayHelper.blink();
-            singleButton.longPressTriggerDone();
-        }
+        pageController.calibrationPage();
     } else if (pageHelper.getPageIndex() == 4) {
-        if (displayHelper.getDisplayChanged()) {
-            // Reset calibration value and calibration display update delay
-            gMaxCalibration = 0;
-            calibrationDisplayUpdateDelay = 0;
-            // Show setup g force page
-            displayHelper.clear();
-            pageContentHelper.setupGforcePage(shotCounter.countGforce, gyroMeasure.getGCountedLast());
-            displayHelper.render();
-            displayHelper.setDisplayChanged(false);
-        }
-        // Shortpress handler
-        if (singleButton.shortPressTrigger()) {
-            // If settings changed, save profile
-            ShotCounter shotCounterStored = dataProfiles.getShotCounter();
-            if (shotCounterStored.countGforce != shotCounter.countGforce) {
-                dataProfiles.putShotCounter(shotCounter);
-            }
-            pageHelper.setPageIndex(5);
-            pageHelper.setPageChanged(true);
-            displayHelper.setDisplayChanged(true);
-            singleButton.shortPressTriggerDone();
-        }
-        // Longpress handler
-        if (singleButton.longPressTrigger()) {
-            shotCounter.countGforce = shotCounter.countGforce + 0.5 > 16 ? 0.5 : shotCounter.countGforce + 0.5;
-            displayHelper.setDisplayChanged(true);
-            displayHelper.blink();
-            singleButton.longPressTriggerDone();
-        }
+        pageController.setupGforcePage();
     } else if (pageHelper.getPageIndex() == 5) {
-        if (displayHelper.getDisplayChanged()) {
-            displayHelper.clear();
-            pageContentHelper.setupShotDelayPage(shotCounter.shotDelay);
-            displayHelper.render();
-            displayHelper.setDisplayChanged(false);
-        }
-        // Shortpress handler
-        if (singleButton.shortPressTrigger()) {
-            // If settings changed, save profile
-            ShotCounter shotCounterStored = dataProfiles.getShotCounter();
-            if (shotCounterStored.shotDelay != shotCounter.shotDelay) {
-                dataProfiles.putShotCounter(shotCounter);
-            }
-            pageHelper.setPageIndex(6);
-            pageHelper.setPageChanged(true);
-            displayHelper.setDisplayChanged(true);
-            singleButton.shortPressTriggerDone();
-        }
-        // Longpress handler
-        if (singleButton.longPressTrigger()) {
-            shotCounter.shotDelay = shotCounter.shotDelay + 50 > 2000 ? 50 : shotCounter.shotDelay + 50;
-            displayHelper.setDisplayChanged(true);
-            displayHelper.blink();
-            singleButton.longPressTriggerDone();
-        }
-    }  else if (pageHelper.getPageIndex() == 6) {
-        if (displayHelper.getDisplayChanged()) {
-            displayHelper.clear();
-            pageContentHelper.resetProfilePage();
-            displayHelper.render();
-            displayHelper.setDisplayChanged(false);
-        }
-        // Shortpress handler
-        if (singleButton.shortPressTrigger()) {
-            pageHelper.setPageIndex(0);
-            pageHelper.setPageChanged(true);
-            displayHelper.setDisplayChanged(true);
-            singleButton.shortPressTriggerDone();
-        }
-        // Longpress handler
-        if (singleButton.longPressTrigger()) {
-            shotCounter = dataProfiles.resetShotCounter();
-            displayHelper.blink();
-            singleButton.longPressTriggerDone();
-        }
+        pageController.setupShotDelayPage();
+    } else if (pageHelper.getPageIndex() == 6) {
+        pageController.resetProfilePage();
     }
 
     // Delay after page change to disable multiple page changes
