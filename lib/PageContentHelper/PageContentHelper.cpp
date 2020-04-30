@@ -37,13 +37,13 @@ void PageContentHelper::enterProfilePage() {
     display->println(F("hold button"));
 }
 
-void PageContentHelper::setupGforcePage(float countGforce, float gforcelast) {
+void PageContentHelper::setupGforcePage(float countGforce, float gforceLast) {
     display->println(F("Minimum G force"));
     display->println(F("to count a shot:"));
     display->print(countGforce);
     display->println(F(" g"));
     display->print(F("Last measured: "));
-    display->print(gforcelast);
+    display->print(gforceLast);
     display->print(F(" g"));
 }
 
@@ -60,6 +60,15 @@ void PageContentHelper::resetProfilePage() {
     display->println(F(""));
     display->println(F("To reset this profile"));
     display->println(F("hold button"));
+}
+
+void PageContentHelper::calibrationPage(float gforceMaxMeasured) {
+    display->println(F("Calibration helper"));
+    display->println(F(""));
+    display->println(F("Maximum value"));
+    display->print(F("measured: "));
+    display->print(gforceMaxMeasured);
+    display->println(F(" g"));
 }
 
 void PageContentHelper::sensorErrorPage() {

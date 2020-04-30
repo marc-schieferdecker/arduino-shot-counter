@@ -41,6 +41,8 @@
  */
 // Active shot counter
 ShotCounter shotCounter;
+float gMaxCalibration = 0;
+unsigned long calibrationDisplayUpdateDelay = 0;
 
 /**
  * Instanciate classes
@@ -184,7 +186,45 @@ void loop() {
             singleButton.longPressTriggerDone();
         }
     } else if (pageHelper.getPageIndex() == 3) {
+        if (displayHelper.getDisplayChanged() && calibrationDisplayUpdateDelay < millis()) {
+            // Wake sensor
+            gyroMeasure.sensorWake();
+            // Show calibration page
+            displayHelper.clear();
+            pageContentHelper.calibrationPage(gMaxCalibration);
+            displayHelper.render();
+            displayHelper.setDisplayChanged(false);
+        }
+
+        // Get value from sensor and update view if new max value is set
+        float gMax = gyroMeasure.getAccelerationMax();
+        if (gMax > gMaxCalibration) {
+            gMaxCalibration = gMax;
+            // Update display after 1 second to keep fast measuring for the next 1 second
+            calibrationDisplayUpdateDelay = millis() + 1000;
+            displayHelper.setDisplayChanged(true);
+        }
+
+        // Shortpress handler
+        if (singleButton.shortPressTrigger()) {
+            pageHelper.setPageIndex(4);
+            pageHelper.setPageChanged(true);
+            displayHelper.setDisplayChanged(true);
+            singleButton.shortPressTriggerDone();
+        }
+        // Longpress handler
+        if (singleButton.longPressTrigger()) {
+            gMaxCalibration = 0;
+            displayHelper.setDisplayChanged(true);
+            displayHelper.blink();
+            singleButton.longPressTriggerDone();
+        }
+    } else if (pageHelper.getPageIndex() == 4) {
         if (displayHelper.getDisplayChanged()) {
+            // Reset calibration value and calibration display update delay
+            gMaxCalibration = 0;
+            calibrationDisplayUpdateDelay = 0;
+            // Show setup g force page
             displayHelper.clear();
             pageContentHelper.setupGforcePage(shotCounter.countGforce, gyroMeasure.getGCountedLast());
             displayHelper.render();
@@ -197,7 +237,7 @@ void loop() {
             if (shotCounterStored.countGforce != shotCounter.countGforce) {
                 dataProfiles.putShotCounter(shotCounter);
             }
-            pageHelper.setPageIndex(4);
+            pageHelper.setPageIndex(5);
             pageHelper.setPageChanged(true);
             displayHelper.setDisplayChanged(true);
             singleButton.shortPressTriggerDone();
@@ -209,7 +249,7 @@ void loop() {
             displayHelper.blink();
             singleButton.longPressTriggerDone();
         }
-    } else if (pageHelper.getPageIndex() == 4) {
+    } else if (pageHelper.getPageIndex() == 5) {
         if (displayHelper.getDisplayChanged()) {
             displayHelper.clear();
             pageContentHelper.setupShotDelayPage(shotCounter.shotDelay);
@@ -223,7 +263,7 @@ void loop() {
             if (shotCounterStored.shotDelay != shotCounter.shotDelay) {
                 dataProfiles.putShotCounter(shotCounter);
             }
-            pageHelper.setPageIndex(5);
+            pageHelper.setPageIndex(6);
             pageHelper.setPageChanged(true);
             displayHelper.setDisplayChanged(true);
             singleButton.shortPressTriggerDone();
@@ -235,7 +275,7 @@ void loop() {
             displayHelper.blink();
             singleButton.longPressTriggerDone();
         }
-    } else if (pageHelper.getPageIndex() == 5) {
+    }  else if (pageHelper.getPageIndex() == 6) {
         if (displayHelper.getDisplayChanged()) {
             displayHelper.clear();
             pageContentHelper.resetProfilePage();

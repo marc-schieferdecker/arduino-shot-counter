@@ -21,11 +21,13 @@ class PageContentHelper {
     // Show enter profile page
     void enterProfilePage();
     // Show setup g force page
-    void setupGforcePage(float countGforce, float gforcelast);
+    void setupGforcePage(float countGforce, float gforceLast);
     // Show setup shot delay page
     void setupShotDelayPage(int shotDelay);
     // Show reset profile page
     void resetProfilePage();
+    // Show gyro sensor calibration page
+    void calibrationPage(float gforceMaxMeasured);
     // Show gyro sensor error page
     void sensorErrorPage();
 };
