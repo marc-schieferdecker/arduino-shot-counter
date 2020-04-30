@@ -3,14 +3,9 @@
 #include <PageContentHelper.h>
 #include <Wire.h>
 
-#ifndef GYRO_ADDR
-#define GYRO_ADDR 0x68  // AD0 low 0x68, AD0 high 0x69
-#endif
-#ifndef GYRO_ACC_REGISTER_START
-#define GYRO_ACC_REGISTER_START 0x43
-#endif
-
-GyroMeasure::GyroMeasure(PageContentHelper *_pageContentHelper, bool _printDebug) {
+GyroMeasure::GyroMeasure(int _gyroAddress, int _gyroAccRegisterStart, PageContentHelper *_pageContentHelper, bool _printDebug) {
+    gyroAddress = _gyroAddress;
+    gyroAccRegisterStart = _gyroAccRegisterStart;
     pageContentHelper = _pageContentHelper;
     printDebug = _printDebug;
 }
@@ -18,7 +13,7 @@ GyroMeasure::GyroMeasure(PageContentHelper *_pageContentHelper, bool _printDebug
 void GyroMeasure::init() {
     // Setup gyro (MPU6050)
     Wire.begin();
-    Wire.beginTransmission(GYRO_ADDR);
+    Wire.beginTransmission(gyroAddress);
     Wire.write(0x6B);
     Wire.write(0b10000000);  // Reset gyro to default
     Wire.endTransmission(true);
@@ -30,7 +25,7 @@ void GyroMeasure::init() {
     // Wake sensor
     sensorWake();
 
-    Wire.beginTransmission(GYRO_ADDR);
+    Wire.beginTransmission(gyroAddress);
     Wire.write(0x1B);
     Wire.write(0b00011000);  // Set max gyro scale
     Wire.endTransmission(true);
@@ -39,7 +34,7 @@ void GyroMeasure::init() {
         Serial.println(F("Gyro set to max scale"));
     }
 
-    Wire.beginTransmission(GYRO_ADDR);
+    Wire.beginTransmission(gyroAddress);
     Wire.write(0x1C);
     Wire.write(0b00011000);  // Set acc to 16g
     Wire.endTransmission(true);
@@ -54,10 +49,10 @@ void GyroMeasure::init() {
 
 float GyroMeasure::getAccelerationMax() {
     // Measure gyro
-    Wire.beginTransmission(GYRO_ADDR);
-    Wire.write(GYRO_ACC_REGISTER_START);
+    Wire.beginTransmission(gyroAddress);
+    Wire.write(gyroAccRegisterStart);
     Wire.endTransmission(false);
-    Wire.requestFrom(GYRO_ADDR, 6, true);
+    Wire.requestFrom(gyroAddress, 6, true);
     gyroGX = Wire.read() << 8 | Wire.read();
     gyroGY = Wire.read() << 8 | Wire.read();
     gyroGZ = Wire.read() << 8 | Wire.read();
@@ -85,18 +80,18 @@ float GyroMeasure::getGCountedLast() {
 }
 
 void GyroMeasure::sensorSleep() {
-    Wire.beginTransmission(GYRO_ADDR);
+    Wire.beginTransmission(gyroAddress);
     Wire.write(0x6B);
     Wire.write(0b01000000);  // Set sleep to 1
     Wire.endTransmission(true);
     delay(50);
     if (printDebug) {
-        Serial.println(F("Gyro waked"));
+        Serial.println(F("Gyro sleep"));
     }
 }
 
 void GyroMeasure::sensorWake() {
-    Wire.beginTransmission(GYRO_ADDR);
+    Wire.beginTransmission(gyroAddress);
     Wire.write(0x6B);
     Wire.write(0);  // Set sleep to 0
     Wire.endTransmission(true);
@@ -107,10 +102,10 @@ void GyroMeasure::sensorWake() {
 
     // Test if gyro is sleeping
     while (1) {
-        Wire.beginTransmission(GYRO_ADDR);
+        Wire.beginTransmission(gyroAddress);
         Wire.write(0x6B);
         Wire.endTransmission(false);
-        Wire.requestFrom(GYRO_ADDR, 1, true);
+        Wire.requestFrom(gyroAddress, 1, true);
         byte testSleepMode = Wire.read();
         Wire.endTransmission(true);
         delay(50);

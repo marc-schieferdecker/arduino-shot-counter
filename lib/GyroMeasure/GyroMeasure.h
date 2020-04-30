@@ -5,6 +5,8 @@
 
 class GyroMeasure {
    private:
+    int gyroAddress;
+    int gyroAccRegisterStart;
     bool printDebug;
     int16_t gyroGX;
     int16_t gyroGY;
@@ -15,7 +17,7 @@ class GyroMeasure {
 
    public:
     // Constructor
-    GyroMeasure(PageContentHelper *pageContentHelper, bool printDebug);
+    GyroMeasure(int gyroAddress, int gyroAccRegisterStart, PageContentHelper *pageContentHelper, bool printDebug);
 
     // Init gyro sensor
     void init();

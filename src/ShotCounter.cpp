@@ -12,34 +12,29 @@
 #include <PageContentHelper.h>
 #include <PageHelper.h>
 #include <SingleButton.h>
-
 #include "Grafics.h"
 
 /**
  * Definitions
  */
+// Version and debug
 #define SHOT_COUNTER_VERSION "Version 0.02a"
 #define PRINT_DEBUG false
+// Display
 #define OLED_RESET 4
-#define oledAddr 0x3C
-#ifdef GYRO_ADDR
-#undef GYRO_ADDR
+#define OLED_ADDR 0x3C
+// Gyroscope
 #define GYRO_ADDR 0x68  // AD0 low 0x68, AD0 high 0x69
-#endif
-#ifdef GYRO_ACC_REGISTER_START
-#undef GYRO_ACC_REGISTER_START
 #define GYRO_ACC_REGISTER_START 0x43
-#endif
+// Data storage
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
+// Main pages available
 #define PAGES_MAIN_TOTAL 3
-#ifdef BUTTON_PIN_REG
-#undef BUTTON_PIN_REG
+// Single button pin and bitmask
 #define BUTTON_PIN_REG PINB
-#endif
-#define BUTTON_PRESS_VAL 0
-#define BUTTON_RELEASE_VAL 4
+#define BUTTON_PIN_BITMASK 0b00000100 // Pin D10 = bit 2
 
 /**
  * Global variables
@@ -53,11 +48,11 @@ ShotCounter shotCounter;
 // Display class
 Adafruit_SSD1306 display(OLED_RESET);
 // Display helper
-DisplayHelper displayHelper(&display, SSD1306_SWITCHCAPVCC, oledAddr);
+DisplayHelper displayHelper(&display, SSD1306_SWITCHCAPVCC, OLED_ADDR);
 // Page content helper
 PageContentHelper pageContentHelper(&display);
 // Gyro measurement
-GyroMeasure gyroMeasure(&pageContentHelper, PRINT_DEBUG);
+GyroMeasure gyroMeasure(GYRO_ADDR, GYRO_ACC_REGISTER_START, &pageContentHelper, PRINT_DEBUG);
 // EEPROM crc
 EEPromCRC eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounter) * PROFILES_MAX);
 // Data profiles
@@ -65,7 +60,7 @@ DataProfiles dataProfiles(PROFILES_MAX, PROFILES_EEADDR_START, &eepromCrc);
 // Page helper
 PageHelper pageHelper(&display, PAGES_MAIN_TOTAL);
 // Button handler
-SingleButton singleButton(1500, BUTTON_PRESS_VAL, BUTTON_RELEASE_VAL);
+SingleButton singleButton(1500, &BUTTON_PIN_REG, BUTTON_PIN_BITMASK);
 
 // Setup
 void setup() {
