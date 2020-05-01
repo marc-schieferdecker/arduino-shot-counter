@@ -13,6 +13,7 @@ short PageHelper::getPageIndex() {
 }
 
 void PageHelper::setPageIndex(short _pageIndex) {
+    pageChanged = pageIndex != _pageIndex;
     pageIndex = _pageIndex;
 }
 
@@ -27,4 +28,8 @@ bool PageHelper::getPageChanged() {
 
 void PageHelper::setPageChanged(bool _pageChanged) {
     pageChanged = _pageChanged;
+}
+
+short PageHelper::getMaxMainPages() {
+    return maxMainPages;
 }

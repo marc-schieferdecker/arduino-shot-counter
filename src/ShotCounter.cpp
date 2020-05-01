@@ -2,10 +2,8 @@
  * Includes
  */
 // Libs
-#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Arduino.h>
-#include <EEPROM.h>
 // Project includes
 #include <DataProfiles.h>
 #include <DisplayHelper.h>
@@ -14,14 +12,14 @@
 #include <PageController.h>
 #include <PageHelper.h>
 #include <SingleButton.h>
-// Includes
+// Bitmaps
 #include "Grafics.h"
 
 /**
  * Definitions
  */
 // Version and debug
-#define SHOT_COUNTER_VERSION "Version 0.02a"
+#define SHOT_COUNTER_VERSION "Version 0.03a"
 #define PRINT_DEBUG false
 // Display
 #define OLED_RESET 4
@@ -100,36 +98,6 @@ void setup() {
 
 // Main loop
 void loop() {
-    // Button handler
-    singleButton.loop();
-
-    // Check for short press
-    if (singleButton.shortPressTrigger() && pageHelper.getPageIndex() < PAGES_MAIN_TOTAL) {
-        pageHelper.nextPage();
-        displayHelper.setDisplayChanged(true);
-        singleButton.shortPressTriggerDone();
-    }
-
-    // Main page (displays data of active preset)
-    if (pageHelper.getPageIndex() == 0) {
-        pageController.counterPage();
-    } else if (pageHelper.getPageIndex() == 1) {
-        pageController.waitingForShotsPage(Aim);
-    } else if (pageHelper.getPageIndex() == 2) {
-        pageController.enterProfilePage();
-    } else if (pageHelper.getPageIndex() == 3) {
-        pageController.calibrationPage();
-    } else if (pageHelper.getPageIndex() == 4) {
-        pageController.setupGforcePage();
-    } else if (pageHelper.getPageIndex() == 5) {
-        pageController.setupShotDelayPage();
-    } else if (pageHelper.getPageIndex() == 6) {
-        pageController.resetProfilePage();
-    }
-
-    // Delay after page change to disable multiple page changes
-    if (pageHelper.getPageIndex()) {
-        delay(150);
-        pageHelper.setPageChanged(false);
-    }
+    // Control loop
+    pageController.loop();
 }

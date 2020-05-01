@@ -11,37 +11,20 @@ GyroMeasure::GyroMeasure(int _gyroAddress, int _gyroAccRegisterStart, PageConten
 }
 
 void GyroMeasure::setup() {
-    // Setup gyro (MPU6050)
-    Wire.begin();
-    Wire.beginTransmission(gyroAddress);
-    Wire.write(0x6B);
-    Wire.write(0b10000000);  // Reset gyro to default
-    Wire.endTransmission(true);
-    delay(50);
-    if (printDebug) {
-        Serial.println(F("Gyro reseted"));
-    }
+    // Wake sensor
+    sensorWake();
+
+    // Reset sensor to default settings
+    setupResetSensor();
 
     // Wake sensor
     sensorWake();
 
-    Wire.beginTransmission(gyroAddress);
-    Wire.write(0x1B);
-    Wire.write(0b00011000);  // Set max gyro scale
-    Wire.endTransmission(true);
-    delay(50);
-    if (printDebug) {
-        Serial.println(F("Gyro set to max scale"));
-    }
+    // Set acceleration measuring to lowest sensitivity (16g)
+    setupAccelerationSensitivity();
 
-    Wire.beginTransmission(gyroAddress);
-    Wire.write(0x1C);
-    Wire.write(0b00011000);  // Set acc to 16g
-    Wire.endTransmission(true);
-    delay(50);
-    if (printDebug) {
-        Serial.print(F("Gyro acc sensitivity set to 16g"));
-    }
+    // Set scale of gyro to lowest sensitivity
+    setupGyroSensitivity();
 
     // Let sensor sleep until it is used
     sensorSleep();
@@ -79,6 +62,106 @@ float GyroMeasure::getGCountedLast() {
     return gMaxCountedLast;
 }
 
+void GyroMeasure::setupResetSensor() {
+    while (1) {
+        Wire.begin();
+        Wire.beginTransmission(gyroAddress);
+        Wire.write(0x6B);
+        Wire.write(0b10000000);  // Reset gyro to default
+        Wire.endTransmission(true);
+        delay(50);
+        if (printDebug) {
+            Serial.println(F("Gyro reseted"));
+        }
+
+        // Test for success (reset bit must have changed to 0)
+        Wire.beginTransmission(gyroAddress);
+        Wire.write(0x6B);
+        Wire.endTransmission(false);
+        Wire.requestFrom(gyroAddress, 1, true);
+        byte testGyroReset = Wire.read();
+        Wire.endTransmission(true);
+        delay(50);
+        if (printDebug) {
+            Serial.print(F("Gyro reset bits -> "));
+            Serial.println(testGyroReset & 0b10000000);
+        }
+        if ((testGyroReset & 0b10000000) == 0b10000000) {
+            pageContentHelper->sensorResetErrorPage();
+            delay(1000);
+        } else {
+            // Exit loop
+            break;
+        }
+    }
+}
+
+void GyroMeasure::setupGyroSensitivity() {
+    while (1) {
+        Wire.beginTransmission(gyroAddress);
+        Wire.write(0x1B);
+        Wire.write(0b00011000);  // Set max gyro scale
+        Wire.endTransmission(true);
+        delay(50);
+        if (printDebug) {
+            Serial.println(F("Gyro set to max scale"));
+        }
+
+        // Test for success
+        Wire.beginTransmission(gyroAddress);
+        Wire.write(0x1B);
+        Wire.endTransmission(false);
+        Wire.requestFrom(gyroAddress, 1, true);
+        byte testGyroSens = Wire.read();
+        Wire.endTransmission(true);
+        delay(50);
+        if (printDebug) {
+            Serial.print(F("Gyro sens bits -> "));
+            Serial.println(testGyroSens & 0b00011000);
+        }
+        if ((testGyroSens & 0b00011000) != 0b00011000) {
+            pageContentHelper->sensorSensSetupErrorPage();
+            delay(1000);
+        } else {
+            // Exit loop
+            break;
+        }
+    }
+}
+
+void GyroMeasure::setupAccelerationSensitivity() {
+    while (1) {
+        Wire.beginTransmission(gyroAddress);
+        Wire.write(0x1C);
+        Wire.write(0b00011000);  // Set acc to 16g
+        Wire.endTransmission(true);
+        delay(50);
+        if (printDebug) {
+            Serial.println(F("Gyro acc sensitivity set to 16g"));
+        }
+
+        // Test for success
+        Wire.beginTransmission(gyroAddress);
+        Wire.write(0x1C);
+        Wire.endTransmission(false);
+        Wire.requestFrom(gyroAddress, 1, true);
+        byte testAccSens = Wire.read();
+        Wire.endTransmission(true);
+        delay(50);
+        if (printDebug) {
+            Serial.print(F("Gyro acc sens bits -> "));
+            Serial.println(testAccSens & 0b00011000);
+        }
+        if ((testAccSens & 0b00011000) != 0b00011000) {
+            pageContentHelper->sensorAccSetupErrorPage();
+            delay(1000);
+        } else {
+            // Exit loop
+            break;
+        }
+    }
+}
+
 void GyroMeasure::sensorSleep() {
     Wire.beginTransmission(gyroAddress);
     Wire.write(0x6B);
@@ -91,17 +174,19 @@ void GyroMeasure::sensorSleep() {
 }
 
 void GyroMeasure::sensorWake() {
-    Wire.beginTransmission(gyroAddress);
-    Wire.write(0x6B);
-    Wire.write(0);  // Set sleep to 0
-    Wire.endTransmission(true);
-    delay(50);
-    if (printDebug) {
-        Serial.println(F("Gyro waked"));
-    }
-
-    // Test if gyro is sleeping
+    // Wake the gyro and test for success
     while (1) {
+        // Wake up
+        Wire.beginTransmission(gyroAddress);
+        Wire.write(0x6B);
+        Wire.write(0);  // Set sleep to 0
+        Wire.endTransmission(true);
+        delay(50);
+        if (printDebug) {
+            Serial.println(F("Gyro waked"));
+        }
+
+        // Test if sensor is woke
         Wire.beginTransmission(gyroAddress);
         Wire.write(0x6B);
         Wire.endTransmission(false);
@@ -117,6 +202,7 @@ void GyroMeasure::sensorWake() {
             pageContentHelper->sensorErrorPage();
             delay(1000);
         } else {
+            // Sensor is woke so end the loop
             break;
         }
     }

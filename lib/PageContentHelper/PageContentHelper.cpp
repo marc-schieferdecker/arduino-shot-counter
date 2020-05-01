@@ -81,3 +81,36 @@ void PageContentHelper::sensorErrorPage() {
     display->println(F("Sleep still active"));
     display->display();
 }
+
+void PageContentHelper::sensorResetErrorPage() {
+    display->clearDisplay();
+    display->setTextColor(WHITE);
+    display->setTextSize(1);
+    display->setCursor(2, 0);
+    display->println(F("Problem with gyro"));
+    display->println(F(""));
+    display->print(F("Could not reset gyro"));
+    display->display();
+}
+
+void PageContentHelper::sensorSensSetupErrorPage() {
+    display->clearDisplay();
+    display->setTextColor(WHITE);
+    display->setTextSize(1);
+    display->setCursor(2, 0);
+    display->println(F("Problem with gyro"));
+    display->println(F(""));
+    display->print(F("Could not set gyro sensitivity"));
+    display->display();
+}
+
+void PageContentHelper::sensorAccSetupErrorPage() {
+    display->clearDisplay();
+    display->setTextColor(WHITE);
+    display->setTextSize(1);
+    display->setCursor(2, 0);
+    display->println(F("Problem with gyro"));
+    display->println(F(""));
+    display->print(F("Could not set acceleration sensitivity"));
+    display->display();
+}

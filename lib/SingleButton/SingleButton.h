@@ -39,13 +39,13 @@ class SingleButton {
 
     // Method for loop
     void loop();
-
+    // Activate short press trigger
     bool shortPressTrigger();
-
+    // Deactivate short press trigger
     void shortPressTriggerDone();
-
+    // Activate long press trigger
     bool longPressTrigger();
-
+    // Deactivate long press trigger
     void longPressTriggerDone();
 };
 

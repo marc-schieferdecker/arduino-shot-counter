@@ -25,6 +25,8 @@ class PageHelper {
     bool getPageChanged();
     // Set page changed
     void setPageChanged(bool pageChanged);
+    // Get max main pages
+    short getMaxMainPages();
 };
 
 #endif

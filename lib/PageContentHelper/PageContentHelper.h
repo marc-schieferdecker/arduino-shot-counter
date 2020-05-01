@@ -11,7 +11,7 @@ class PageContentHelper {
 
    public:
     // Constructor
-    PageContentHelper(Adafruit_SSD1306 *display);
+    explicit PageContentHelper(Adafruit_SSD1306 *display);
     // Show info page with version
     void versionPage(char const *version);
     // Show shot counter page
@@ -30,6 +30,12 @@ class PageContentHelper {
     void calibrationPage(float gforceMaxMeasured);
     // Show gyro sensor error page
     void sensorErrorPage();
+    // Show gyro reset eror page
+    void sensorResetErrorPage();
+    // Show gyro sensitivity setup error page
+    void sensorSensSetupErrorPage();
+    // Show acceleration sensitivity setup error page
+    void sensorAccSetupErrorPage();
 };
 
 #endif

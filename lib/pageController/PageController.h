@@ -21,6 +21,12 @@ class PageController {
     SingleButton *singleButton;
     bool printDebug;
 
+    void nextMainPage() {
+        pageHelper->nextPage();
+        displayHelper->setDisplayChanged(true);
+        singleButton->shortPressTriggerDone();
+    }
+
    public:
     // Constructor
     PageController(DataProfiles *dataProfiles,
@@ -32,20 +38,22 @@ class PageController {
                    bool printDebug);
     // Init shot counter
     void setup();
+    // Main loop
+    void loop();
     // Show shot counter page
     void counterPage();
     // Show waiting for shots page
     void waitingForShotsPage(const uint8_t *bitmap);
     // Show enter profile page
-    void enterProfilePage();
-    // Show setup g force page
-    void setupGforcePage();
-    // Show setup shot delay page
-    void setupShotDelayPage();
-    // Show reset profile page
-    void resetProfilePage();
+    void enterProfilePage(int subMenuPageIndex);
     // Show gyro sensor calibration page
-    void calibrationPage();
+    void calibrationPage(int nextPageIndex);
+    // Show setup g force page
+    void setupGforcePage(int nextPageIndex);
+    // Show setup shot delay page
+    void setupShotDelayPage(int nextPageIndex);
+    // Show reset profile page
+    void resetProfilePage(int nextPageIndex);
 };
 
 #endif

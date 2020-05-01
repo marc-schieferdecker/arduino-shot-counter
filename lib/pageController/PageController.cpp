@@ -7,6 +7,8 @@
 #include <PageHelper.h>
 #include <SingleButton.h>
 
+#include "../../include/Grafics.h"
+
 PageController::PageController(DataProfiles *_dataProfiles,
                                DisplayHelper *_displayHelper,
                                GyroMeasure *_gyroMeasure,
@@ -25,6 +27,45 @@ PageController::PageController(DataProfiles *_dataProfiles,
 
 void PageController::setup() {
     shotCounter = dataProfiles->setup();
+}
+
+void PageController::loop() {
+    // Button handler
+    singleButton->loop();
+
+    // Check for short press
+    if (singleButton->shortPressTrigger() && pageHelper->getPageIndex() < pageHelper->getMaxMainPages()) {
+        nextMainPage();
+    }
+
+    if (pageHelper->getPageIndex() == 0) {
+        // Main page 1: Display shot counter data
+        counterPage();
+    } else if (pageHelper->getPageIndex() == 1) {
+        // Main page 2: Wait for shots
+        waitingForShotsPage(Aim);
+    } else if (pageHelper->getPageIndex() == 2) {
+        // Main page 3: Enter setup page
+        enterProfilePage(3);
+    } else if (pageHelper->getPageIndex() == 3) {
+        // Setup sub page 1: Calibration helper page
+        calibrationPage(4);
+    } else if (pageHelper->getPageIndex() == 4) {
+        // Setup sub page 2: Set min g force for shot count
+        setupGforcePage(5);
+    } else if (pageHelper->getPageIndex() == 5) {
+        // Setup sub page 3: Set shot count delay value
+        setupShotDelayPage(6);
+    } else if (pageHelper->getPageIndex() == 6) {
+        // Setup sub page 4: Reset profile page
+        resetProfilePage(0);
+    }
+
+    // Delay after page change to disable multiple page changes
+    if (pageHelper->getPageChanged()) {
+        delay(150);
+        pageHelper->setPageChanged(false);
+    }
 }
 
 void PageController::counterPage() {
@@ -86,7 +127,7 @@ void PageController::waitingForShotsPage(const uint8_t *bitmap) {
     }
 }
 
-void PageController::enterProfilePage() {
+void PageController::enterProfilePage(int subMenuPageIndex) {
     if (displayHelper->getDisplayChanged()) {
         // Set sensor to sleep for lower power consumption
         gyroMeasure->sensorSleep();
@@ -98,8 +139,7 @@ void PageController::enterProfilePage() {
     }
     // Longpress handler
     if (singleButton->longPressTrigger()) {
-        pageHelper->setPageIndex(3);
-        pageHelper->setPageChanged(true);
+        pageHelper->setPageIndex(subMenuPageIndex);
         displayHelper->setDisplayChanged(true);
         displayHelper->blink();
         delay(500);
@@ -107,89 +147,12 @@ void PageController::enterProfilePage() {
     }
 }
 
-void PageController::setupGforcePage() {
-    if (displayHelper->getDisplayChanged()) {
-        // Show setup g force page
-        displayHelper->clear();
-        pageContentHelper->setupGforcePage(shotCounter.countGforce, gyroMeasure->getGCountedLast());
-        displayHelper->render();
-        displayHelper->setDisplayChanged(false);
-    }
-    // Shortpress handler
-    if (singleButton->shortPressTrigger()) {
-        // If settings changed, save profile
-        ShotCounter shotCounterStored = dataProfiles->getShotCounter();
-        if (shotCounterStored.countGforce != shotCounter.countGforce) {
-            dataProfiles->putShotCounter(shotCounter);
-        }
-        pageHelper->setPageIndex(5);
-        pageHelper->setPageChanged(true);
-        displayHelper->setDisplayChanged(true);
-        singleButton->shortPressTriggerDone();
-    }
-    // Longpress handler
-    if (singleButton->longPressTrigger()) {
-        shotCounter.countGforce = shotCounter.countGforce + 0.5 > 16 ? 0.5 : shotCounter.countGforce + 0.5;
-        displayHelper->setDisplayChanged(true);
-        displayHelper->blink();
-        singleButton->longPressTriggerDone();
-    }
-}
-
-void PageController::setupShotDelayPage() {
-    if (displayHelper->getDisplayChanged()) {
-        displayHelper->clear();
-        pageContentHelper->setupShotDelayPage(shotCounter.shotDelay);
-        displayHelper->render();
-        displayHelper->setDisplayChanged(false);
-    }
-    // Shortpress handler
-    if (singleButton->shortPressTrigger()) {
-        // If settings changed, save profile
-        ShotCounter shotCounterStored = dataProfiles->getShotCounter();
-        if (shotCounterStored.shotDelay != shotCounter.shotDelay) {
-            dataProfiles->putShotCounter(shotCounter);
-        }
-        pageHelper->setPageIndex(6);
-        pageHelper->setPageChanged(true);
-        displayHelper->setDisplayChanged(true);
-        singleButton->shortPressTriggerDone();
-    }
-    // Longpress handler
-    if (singleButton->longPressTrigger()) {
-        shotCounter.shotDelay = shotCounter.shotDelay + 50 > 2000 ? 50 : shotCounter.shotDelay + 50;
-        displayHelper->setDisplayChanged(true);
-        displayHelper->blink();
-        singleButton->longPressTriggerDone();
-    }
-}
-
-void PageController::resetProfilePage() {
-    if (displayHelper->getDisplayChanged()) {
-        displayHelper->clear();
-        pageContentHelper->resetProfilePage();
-        displayHelper->render();
-        displayHelper->setDisplayChanged(false);
-    }
-    // Shortpress handler
-    if (singleButton->shortPressTrigger()) {
-        pageHelper->setPageIndex(0);
-        pageHelper->setPageChanged(true);
-        displayHelper->setDisplayChanged(true);
-        singleButton->shortPressTriggerDone();
-    }
-    // Longpress handler
-    if (singleButton->longPressTrigger()) {
-        shotCounter = dataProfiles->resetShotCounter();
-        displayHelper->blink();
-        singleButton->longPressTriggerDone();
-    }
-}
-
-void PageController::calibrationPage() {
+void PageController::calibrationPage(int nextPageIndex) {
     if (displayHelper->getDisplayChanged() && calibrationDisplayUpdateDelay < millis()) {
         // Wake sensor
-        gyroMeasure->sensorWake();
+        if (calibrationDisplayUpdateDelay == 0) {
+            gyroMeasure->sensorWake();
+        }
         // Show calibration page
         displayHelper->clear();
         pageContentHelper->calibrationPage(gMaxCalibration);
@@ -210,8 +173,7 @@ void PageController::calibrationPage() {
     if (singleButton->shortPressTrigger()) {
         gMaxCalibration = 0;
         calibrationDisplayUpdateDelay = 0;
-        pageHelper->setPageIndex(4);
-        pageHelper->setPageChanged(true);
+        pageHelper->setPageIndex(nextPageIndex);
         displayHelper->setDisplayChanged(true);
         singleButton->shortPressTriggerDone();
     }
@@ -220,6 +182,82 @@ void PageController::calibrationPage() {
         gMaxCalibration = 0;
         calibrationDisplayUpdateDelay = 0;
         displayHelper->setDisplayChanged(true);
+        displayHelper->blink();
+        singleButton->longPressTriggerDone();
+    }
+}
+
+void PageController::setupGforcePage(int nextPageIndex) {
+    if (displayHelper->getDisplayChanged()) {
+        // Show setup g force page
+        displayHelper->clear();
+        pageContentHelper->setupGforcePage(shotCounter.countGforce, gyroMeasure->getGCountedLast());
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Shortpress handler
+    if (singleButton->shortPressTrigger()) {
+        // If settings changed, save profile
+        ShotCounter shotCounterStored = dataProfiles->getShotCounter();
+        if (shotCounterStored.countGforce != shotCounter.countGforce) {
+            dataProfiles->putShotCounter(shotCounter);
+        }
+        pageHelper->setPageIndex(nextPageIndex);
+        displayHelper->setDisplayChanged(true);
+        singleButton->shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        shotCounter.countGforce = shotCounter.countGforce + 0.5 > 16 ? 0.5 : shotCounter.countGforce + 0.5;
+        displayHelper->setDisplayChanged(true);
+        displayHelper->blink();
+        singleButton->longPressTriggerDone();
+    }
+}
+
+void PageController::setupShotDelayPage(int nextPageIndex) {
+    if (displayHelper->getDisplayChanged()) {
+        displayHelper->clear();
+        pageContentHelper->setupShotDelayPage(shotCounter.shotDelay);
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Shortpress handler
+    if (singleButton->shortPressTrigger()) {
+        // If settings changed, save profile
+        ShotCounter shotCounterStored = dataProfiles->getShotCounter();
+        if (shotCounterStored.shotDelay != shotCounter.shotDelay) {
+            dataProfiles->putShotCounter(shotCounter);
+        }
+        pageHelper->setPageIndex(nextPageIndex);
+        displayHelper->setDisplayChanged(true);
+        singleButton->shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        shotCounter.shotDelay = shotCounter.shotDelay + 50 > 2000 ? 50 : shotCounter.shotDelay + 50;
+        displayHelper->setDisplayChanged(true);
+        displayHelper->blink();
+        singleButton->longPressTriggerDone();
+    }
+}
+
+void PageController::resetProfilePage(int nextPageIndex) {
+    if (displayHelper->getDisplayChanged()) {
+        displayHelper->clear();
+        pageContentHelper->resetProfilePage();
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Shortpress handler
+    if (singleButton->shortPressTrigger()) {
+        pageHelper->setPageIndex(nextPageIndex);
+        displayHelper->setDisplayChanged(true);
+        singleButton->shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        shotCounter = dataProfiles->resetShotCounter();
         displayHelper->blink();
         singleButton->longPressTriggerDone();
     }
