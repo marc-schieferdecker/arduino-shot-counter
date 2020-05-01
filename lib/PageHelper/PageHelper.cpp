@@ -3,16 +3,16 @@
 #include <Arduino.h>
 #include <PageHelper.h>
 
-PageHelper::PageHelper(Adafruit_SSD1306 *_display, short _maxMainPages) {
+PageHelper::PageHelper(Adafruit_SSD1306 *_display, byte _maxMainPages) {
     display = _display;
     maxMainPages = _maxMainPages;
 }
 
-short PageHelper::getPageIndex() {
+byte PageHelper::getPageIndex() {
     return pageIndex;
 }
 
-void PageHelper::setPageIndex(short _pageIndex) {
+void PageHelper::setPageIndex(byte _pageIndex) {
     pageChanged = pageIndex != _pageIndex;
     pageIndex = _pageIndex;
 }
@@ -30,6 +30,6 @@ void PageHelper::setPageChanged(bool _pageChanged) {
     pageChanged = _pageChanged;
 }
 
-short PageHelper::getMaxMainPages() {
+byte PageHelper::getMaxMainPages() {
     return maxMainPages;
 }

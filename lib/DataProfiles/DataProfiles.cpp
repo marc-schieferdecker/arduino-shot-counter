@@ -3,7 +3,7 @@
 #include <EEPROM.h>
 #include <EEPromCRC.h>
 
-DataProfiles::DataProfiles(unsigned short _profilesMax, unsigned int _eeAddress, EEPromCRC *_eepromCrc) {
+DataProfiles::DataProfiles(byte _profilesMax, unsigned int _eeAddress, EEPromCRC *_eepromCrc) {
     profilesMax = _profilesMax;
     eeAddress = _eeAddress;
     eepromCrc = _eepromCrc;

@@ -7,18 +7,18 @@
 
 class PageHelper {
    private:
-    short pageIndex = 0;
-    short maxMainPages;
+    byte pageIndex = 0;
+    byte maxMainPages;
     bool pageChanged = false;
     Adafruit_SSD1306 *display;
 
    public:
     // Constructor
-    PageHelper(Adafruit_SSD1306 *display, short maxMainPages);
+    PageHelper(Adafruit_SSD1306 *display, byte maxMainPages);
     // Get page index
-    short getPageIndex();
+    byte getPageIndex();
     // Set page index
-    void setPageIndex(short pageIndex);
+    void setPageIndex(byte pageIndex);
     // Switch to next page
     void nextPage();
     // Get page changed
@@ -26,7 +26,7 @@ class PageHelper {
     // Set page changed
     void setPageChanged(bool pageChanged);
     // Get max main pages
-    short getMaxMainPages();
+    byte getMaxMainPages();
 };
 
 #endif

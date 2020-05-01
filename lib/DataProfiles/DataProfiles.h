@@ -15,13 +15,13 @@ struct ShotCounter {
 class DataProfiles {
    private:
     unsigned int eeAddress = 0;
-    int profilesMax = 6;
-    int selectedProfile = 0;
+    byte profilesMax = 6;
+    byte selectedProfile = 0;
     EEPromCRC *eepromCrc;
 
    public:
     // Constructor
-    DataProfiles(unsigned short profilesMax, unsigned int eeAddress, EEPromCRC *eepromCrc);
+    DataProfiles(byte profilesMax, unsigned int eeAddress, EEPromCRC *eepromCrc);
     // Init functions
     ShotCounter setup();
     // Get active shot counter
