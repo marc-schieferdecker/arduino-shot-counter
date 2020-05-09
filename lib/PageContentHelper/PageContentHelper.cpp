@@ -17,7 +17,7 @@ void PageContentHelper::versionPage(char const *version) {
     display->println(F("letsshootshow.de"));
 }
 
-void PageContentHelper::counterPage(ShotCounter shotCounter) {
+void PageContentHelper::counterPage(ShotCounterData shotCounter) {
     display->println(shotCounter.profileName);
     display->println(F(""));
     display->print(F("Total      "));
@@ -113,4 +113,11 @@ void PageContentHelper::sensorAccSetupErrorPage() {
     display->println(F(""));
     display->print(F("Could not set acceleration sensitivity"));
     display->display();
+}
+
+void PageContentHelper::powerOffDevicePage() {
+    display->println(F("Power off"));
+    display->println(F(""));
+    display->println(F("To turn off device"));
+    display->println(F("hold button"));
 }

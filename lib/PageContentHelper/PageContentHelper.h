@@ -15,7 +15,7 @@ class PageContentHelper {
     // Show info page with version
     void versionPage(char const *version);
     // Show shot counter page
-    void counterPage(ShotCounter shotCounter);
+    void counterPage(ShotCounterData shotCounter);
     // Show waiting for shots page
     void waitingForShotsPage();
     // Show enter profile page
@@ -36,6 +36,8 @@ class PageContentHelper {
     void sensorSensSetupErrorPage();
     // Show acceleration sensitivity setup error page
     void sensorAccSetupErrorPage();
+    // Show power off page
+    void powerOffDevicePage();
 };
 
 #endif

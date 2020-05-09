@@ -1,16 +1,9 @@
 #ifndef DataProfiles_h
 #define DataProfiles_h
 
+#include <ShotCounterData.h>
 #include <EEProm.h>
 #include <EEPromCRC.h>
-
-struct ShotCounter {
-    unsigned long shotsTotal;
-    unsigned int shotsSeries;
-    float countGforce;
-    int shotDelay;
-    char profileName[15];
-};
 
 class DataProfiles {
    private:
@@ -23,13 +16,13 @@ class DataProfiles {
     // Constructor
     DataProfiles(byte profilesMax, unsigned int eeAddress, EEPromCRC *eepromCrc);
     // Init functions
-    ShotCounter setup();
+    ShotCounterData setup();
     // Get active shot counter
-    ShotCounter getShotCounter();
+    ShotCounterData getShotCounter();
     // Store active shot counter
-    void putShotCounter(ShotCounter shotCounter);
+    void putShotCounter(ShotCounterData shotCounter);
     // Reset active shot counter to default
-    ShotCounter resetShotCounter();
+    ShotCounterData resetShotCounter();
     // Switch to next shot counter
     void nextShotCounter();
 };

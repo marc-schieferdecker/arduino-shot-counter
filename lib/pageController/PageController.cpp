@@ -6,6 +6,7 @@
 #include <PageController.h>
 #include <PageHelper.h>
 #include <SingleButton.h>
+#include <PowerDevice.h>
 
 #include "../../include/Grafics.h"
 
@@ -15,6 +16,7 @@ PageController::PageController(DataProfiles *_dataProfiles,
                                PageContentHelper *_pageContentHelper,
                                PageHelper *_pageHelper,
                                SingleButton *_singleButton,
+                               PowerDevice *_powerDevice,
                                bool _printDebug) {
     dataProfiles = _dataProfiles;
     displayHelper = _displayHelper;
@@ -22,6 +24,7 @@ PageController::PageController(DataProfiles *_dataProfiles,
     pageContentHelper = _pageContentHelper;
     pageHelper = _pageHelper;
     singleButton = _singleButton;
+    powerDevice = _powerDevice;
     printDebug = _printDebug;
 }
 
@@ -39,24 +42,27 @@ void PageController::loop() {
     }
 
     if (pageHelper->getPageIndex() == 0) {
-        // Main page 1: Display shot counter data
-        counterPage();
-    } else if (pageHelper->getPageIndex() == 1) {
-        // Main page 2: Wait for shots
+        // Main page 1: Wait for shots
         waitingForShotsPage(Aim);
+    } else if (pageHelper->getPageIndex() == 1) {
+        // Main page 2: Display shot counter data
+        counterPage();
     } else if (pageHelper->getPageIndex() == 2) {
         // Main page 3: Enter setup page
-        enterProfilePage(3);
+        enterProfilePage(4);
     } else if (pageHelper->getPageIndex() == 3) {
-        // Setup sub page 1: Calibration helper page
-        calibrationPage(4);
+        // Main page 4: Power off device
+        powerOffDevicePage();
     } else if (pageHelper->getPageIndex() == 4) {
-        // Setup sub page 2: Set min g force for shot count
-        setupGforcePage(5);
+        // Setup sub page 1: Calibration helper page
+        calibrationPage(5);
     } else if (pageHelper->getPageIndex() == 5) {
-        // Setup sub page 3: Set shot count delay value
-        setupShotDelayPage(6);
+        // Setup sub page 2: Set min g force for shot count
+        setupGforcePage(6);
     } else if (pageHelper->getPageIndex() == 6) {
+        // Setup sub page 3: Set shot count delay value
+        setupShotDelayPage(7);
+    } else if (pageHelper->getPageIndex() == 7) {
         // Setup sub page 4: Reset profile page
         resetProfilePage(0);
     }
@@ -198,7 +204,7 @@ void PageController::setupGforcePage(int nextPageIndex) {
     // Shortpress handler
     if (singleButton->shortPressTrigger()) {
         // If settings changed, save profile
-        ShotCounter shotCounterStored = dataProfiles->getShotCounter();
+        ShotCounterData shotCounterStored = dataProfiles->getShotCounter();
         if (shotCounterStored.countGforce != shotCounter.countGforce) {
             dataProfiles->putShotCounter(shotCounter);
         }
@@ -225,7 +231,7 @@ void PageController::setupShotDelayPage(int nextPageIndex) {
     // Shortpress handler
     if (singleButton->shortPressTrigger()) {
         // If settings changed, save profile
-        ShotCounter shotCounterStored = dataProfiles->getShotCounter();
+        ShotCounterData shotCounterStored = dataProfiles->getShotCounter();
         if (shotCounterStored.shotDelay != shotCounter.shotDelay) {
             dataProfiles->putShotCounter(shotCounter);
         }
@@ -260,5 +266,20 @@ void PageController::resetProfilePage(int nextPageIndex) {
         shotCounter = dataProfiles->resetShotCounter();
         displayHelper->blink();
         singleButton->longPressTriggerDone();
+    }
+}
+
+void PageController::powerOffDevicePage() {
+        if (displayHelper->getDisplayChanged()) {
+        displayHelper->clear();
+        pageContentHelper->powerOffDevicePage();
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        displayHelper->blink();
+        singleButton->longPressTriggerDone();
+        powerDevice->turnDeviceOff();
     }
 }

@@ -7,10 +7,11 @@
 #include <PageContentHelper.h>
 #include <PageHelper.h>
 #include <SingleButton.h>
+#include <PowerDevice.h>
 
 class PageController {
    private:
-    ShotCounter shotCounter;
+    ShotCounterData shotCounter;
     float gMaxCalibration = 0;
     unsigned long calibrationDisplayUpdateDelay = 0;
     DataProfiles *dataProfiles;
@@ -19,6 +20,7 @@ class PageController {
     PageContentHelper *pageContentHelper;
     PageHelper *pageHelper;
     SingleButton *singleButton;
+    PowerDevice *powerDevice;
     bool printDebug;
 
     void nextMainPage() {
@@ -35,6 +37,7 @@ class PageController {
                    PageContentHelper *pageContentHelper,
                    PageHelper *pageHelper,
                    SingleButton *singleButton,
+                   PowerDevice *powerDevice,
                    bool printDebug);
     // Init shot counter
     void setup();
@@ -54,6 +57,8 @@ class PageController {
     void setupShotDelayPage(int nextPageIndex);
     // Show reset profile page
     void resetProfilePage(int nextPageIndex);
+    // Show power off device page
+    void powerOffDevicePage();
 };
 
 #endif

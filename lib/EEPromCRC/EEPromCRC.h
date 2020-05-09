@@ -4,7 +4,7 @@
 #include <EEProm.h>
 
 // Checksum table
-const uint32_t crcTable[16] PROGMEM = {
+const uint32_t EEPromCRC_h_CRCTbl[16] = {
     0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
     0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
     0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
@@ -23,8 +23,8 @@ class EEPromCRC {
     uint32_t calculateCrc() {
         uint32_t crc = ~0L;
         for (int index = this->dataStorageStart; index < this->dataStorageEnd; index++) {
-            crc = crcTable[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
-            crc = crcTable[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
+            crc = EEPromCRC_h_CRCTbl[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
+            crc = EEPromCRC_h_CRCTbl[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
             crc = ~crc;
         }
         return crc;

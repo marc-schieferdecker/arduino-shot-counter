@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ShotCounterData.h>
 #include <DataProfiles.h>
 #include <EEPROM.h>
 #include <EEPromCRC.h>
@@ -9,12 +10,12 @@ DataProfiles::DataProfiles(byte _profilesMax, unsigned int _eeAddress, EEPromCRC
     eepromCrc = _eepromCrc;
 }
 
-ShotCounter DataProfiles::setup() {
+ShotCounterData DataProfiles::setup() {
     // Check crc
     if (!eepromCrc->crcIsValid()) {
         for (int i = 0; i < profilesMax; i++) {
             // Write default data to EEPROM
-            ShotCounter defaultShotCounter = {
+            ShotCounterData defaultShotCounter = {
                 0,
                 0,
                 3,
@@ -25,26 +26,26 @@ ShotCounter DataProfiles::setup() {
             sprintf(defaultShotCounter.profileName, "Preset %d", i + 1);
 
             // Store data and update crc
-            EEPROM.put(eeAddress + (sizeof(ShotCounter) * i), defaultShotCounter);
+            EEPROM.put(eeAddress + (sizeof(ShotCounterData) * i), defaultShotCounter);
         }
         eepromCrc->crcPut();
     }
     return getShotCounter();
 }
 
-ShotCounter DataProfiles::getShotCounter() {
-    ShotCounter shotCounter;
+ShotCounterData DataProfiles::getShotCounter() {
+    ShotCounterData shotCounter;
     EEPROM.get(eeAddress, shotCounter);
     return shotCounter;
 }
 
-void DataProfiles::putShotCounter(ShotCounter shotCounter) {
+void DataProfiles::putShotCounter(ShotCounterData shotCounter) {
     EEPROM.put(eeAddress, shotCounter);
     eepromCrc->crcPut();
 }
 
-ShotCounter DataProfiles::resetShotCounter() {
-    ShotCounter defaultShotCounter = {
+ShotCounterData DataProfiles::resetShotCounter() {
+    ShotCounterData defaultShotCounter = {
         0,
         0,
         3,
@@ -61,5 +62,5 @@ void DataProfiles::nextShotCounter() {
     if (selectedProfile > (profilesMax - 1)) {
         selectedProfile = 0;
     }
-    eeAddress = (sizeof(ShotCounter) * selectedProfile);
+    eeAddress = (sizeof(ShotCounterData) * selectedProfile);
 }
