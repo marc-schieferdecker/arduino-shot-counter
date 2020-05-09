@@ -74,24 +74,6 @@ void PageController::loop() {
     }
 }
 
-void PageController::counterPage() {
-    // Show profile values
-    if (displayHelper->getDisplayChanged()) {
-        displayHelper->clear();
-        pageContentHelper->counterPage(shotCounter);
-        displayHelper->render();
-        displayHelper->setDisplayChanged(false);
-    }
-    // Longpress handler
-    if (singleButton->longPressTrigger()) {
-        dataProfiles->nextShotCounter();
-        shotCounter = dataProfiles->getShotCounter();
-        displayHelper->setDisplayChanged(true);
-        displayHelper->blink();
-        singleButton->longPressTriggerDone();
-    }
-}
-
 void PageController::waitingForShotsPage(const uint8_t *bitmap) {
     if (displayHelper->getDisplayChanged()) {
         // Wake sensor
@@ -133,10 +115,29 @@ void PageController::waitingForShotsPage(const uint8_t *bitmap) {
     }
 }
 
-void PageController::enterProfilePage(int subMenuPageIndex) {
+void PageController::counterPage() {
+    // Show profile values
     if (displayHelper->getDisplayChanged()) {
         // Set sensor to sleep for lower power consumption
         gyroMeasure->sensorSleep();
+        // Show active counter
+        displayHelper->clear();
+        pageContentHelper->counterPage(shotCounter);
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        dataProfiles->nextShotCounter();
+        shotCounter = dataProfiles->getShotCounter();
+        displayHelper->setDisplayChanged(true);
+        displayHelper->blink();
+        singleButton->longPressTriggerDone();
+    }
+}
+
+void PageController::enterProfilePage(int subMenuPageIndex) {
+    if (displayHelper->getDisplayChanged()) {
         // Display enter setup page
         displayHelper->clear();
         pageContentHelper->enterProfilePage();

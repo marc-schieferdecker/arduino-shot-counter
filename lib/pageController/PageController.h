@@ -43,10 +43,10 @@ class PageController {
     void setup();
     // Main loop
     void loop();
-    // Show shot counter page
-    void counterPage();
     // Show waiting for shots page
     void waitingForShotsPage(const uint8_t *bitmap);
+    // Show shot counter page
+    void counterPage();
     // Show enter profile page
     void enterProfilePage(int subMenuPageIndex);
     // Show gyro sensor calibration page
