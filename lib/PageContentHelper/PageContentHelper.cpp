@@ -21,54 +21,43 @@ void PageContentHelper::versionPage(char const *version) {
 
 void PageContentHelper::counterPage(ShotCounterData shotCounter) {
     display->println(shotCounter.profileName);
-    display->println(F(""));
-    display->print(F("Total      "));
+    display->println();
+    display->print(shotCounterLang->getKey(SCLangTotal));
     display->println(shotCounter.shotsTotal);
-    display->print(F("Series     "));
+    display->print(shotCounterLang->getKey(SCLangSeries));
     display->println(shotCounter.shotsSeries);
 }
 
 void PageContentHelper::waitingForShotsPage() {
-    display->println(shotCounterLang->getKey(waitingForShots));
+    display->println(shotCounterLang->getKey(SCLangWaitingForShots));
 }
 
 void PageContentHelper::enterProfilePage() {
-    display->println(F("Setup profile"));
-    display->println(F(""));
-    display->println(F("To enter setup"));
-    display->println(F("hold button"));
+    display->print(shotCounterLang->getKey(SCLangSetup));
 }
 
 void PageContentHelper::setupGforcePage(float countGforce, float gforceLast) {
-    display->println(F("Minimum G force"));
-    display->println(F("to count a shot:"));
+    display->print(shotCounterLang->getKey(SCLangMinGToCountShot));
     display->print(countGforce);
     display->println(F(" g"));
-    display->print(F("Last measured: "));
+    display->print(shotCounterLang->getKey(SCLangLastMeasured));
     display->print(gforceLast);
     display->print(F(" g"));
 }
 
 void PageContentHelper::setupShotDelayPage(int shotDelay) {
-    display->println(F("Minimum time"));
-    display->println(F("between shots:"));
-    display->println(F(""));
+    display->print(shotCounterLang->getKey(SCLangMinimumTimeBetweenShots));
     display->print(shotDelay);
     display->println(F(" ms"));
 }
 
 void PageContentHelper::resetProfilePage() {
-    display->println(F("Reset profile?"));
-    display->println(F(""));
-    display->println(F("To reset this profile"));
-    display->println(F("hold button"));
+    display->print(shotCounterLang->getKey(SCLangResetProfile));
 }
 
 void PageContentHelper::calibrationPage(float gforceMaxMeasured) {
-    display->println(F("Calibration helper"));
-    display->println(F(""));
-    display->println(F("Maximum value"));
-    display->print(F("measured: "));
+    display->print(shotCounterLang->getKey(SCLangCalibrationHelper));
+    display->print(shotCounterLang->getKey(SCLangMaximumValueMeasured));
     display->print(gforceMaxMeasured);
     display->println(F(" g"));
 }
@@ -77,7 +66,7 @@ void PageContentHelper::sensorErrorPage() {
     display->clearDisplay();
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
-    display->println(F(""));
+    display->println();
     display->println(F("Sleep still active"));
     display->display();
 }
@@ -86,7 +75,7 @@ void PageContentHelper::sensorResetErrorPage() {
     display->clearDisplay();
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
-    display->println(F(""));
+    display->println();
     display->print(F("Could not reset gyro"));
     display->display();
 }
@@ -95,7 +84,7 @@ void PageContentHelper::sensorSensSetupErrorPage() {
     display->clearDisplay();
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
-    display->println(F(""));
+    display->println();
     display->print(F("Could not set gyro sensitivity"));
     display->display();
 }
@@ -104,14 +93,11 @@ void PageContentHelper::sensorAccSetupErrorPage() {
     display->clearDisplay();
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
-    display->println(F(""));
+    display->println();
     display->print(F("Could not set acceleration sensitivity"));
     display->display();
 }
 
 void PageContentHelper::powerOffDevicePage() {
-    display->println(F("Power off"));
-    display->println(F(""));
-    display->println(F("To turn off device"));
-    display->println(F("hold button"));
+    display->print(shotCounterLang->getKey(SCLangPowerOff));
 }

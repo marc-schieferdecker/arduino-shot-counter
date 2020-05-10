@@ -23,7 +23,7 @@
  */
 // Version and debug
 #define SHOT_COUNTER_VERSION "Version 0.04a"
-#define PRINT_DEBUG true
+#define PRINT_DEBUG false
 // Display
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C

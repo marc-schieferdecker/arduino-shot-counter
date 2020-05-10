@@ -6,26 +6,21 @@
 // String not translated error message
 const char LangError[] PROGMEM = {"translation error"};
 
-/**
- * Hex table for german umlauts (Codepage 850)
- * ä  ö  ü  ß  Ä  Ö  Ü
- * 84 94 81 E1 8E 99 9A
- */
-#define waitingForShots 0
-const char waitingForShotsEN[] PROGMEM = {"  Waiting for shots"};
-const char waitingForShotsDE[] PROGMEM = {"  Warte auf Sch\x81sse"};
+// Include language header
+#include "../../include/Lang.h"
 
 class ShotCounterLang {
    private:
     unsigned int eeAddress;
     char lang = 'E';
+    // Dynamic char buffer for converting progmem chars to char*
+    char* progMemCharBuffer = 0;
 
     // Convert PROGMEM char to char*
     char* getProgmemCharAsPointer(const char* str) {
-        char* a = 0;
-        a = (char*)realloc(a, strlen_P(str) + 1);
-        strcpy_P(a, str);
-        return a;
+        progMemCharBuffer = (char*)realloc(progMemCharBuffer, strlen_P(str) + 1);
+        strcpy_P(progMemCharBuffer, str);
+        return progMemCharBuffer;
     }
 
    public:
