@@ -3,9 +3,11 @@
 #include <Arduino.h>
 #include <DataProfiles.h>
 #include <PageContentHelper.h>
+#include <ShotCounterLang.h>
 
-PageContentHelper::PageContentHelper(Adafruit_SSD1306 *_display) {
+PageContentHelper::PageContentHelper(Adafruit_SSD1306 *_display, ShotCounterLang *_shotCounterLang) {
     display = _display;
+    shotCounterLang = _shotCounterLang;
 }
 
 void PageContentHelper::versionPage(char const *version) {
@@ -27,7 +29,7 @@ void PageContentHelper::counterPage(ShotCounterData shotCounter) {
 }
 
 void PageContentHelper::waitingForShotsPage() {
-    display->println("  Waiting for shots");
+    display->println(shotCounterLang->getKey(waitingForShots));
 }
 
 void PageContentHelper::enterProfilePage() {
@@ -73,8 +75,6 @@ void PageContentHelper::calibrationPage(float gforceMaxMeasured) {
 
 void PageContentHelper::sensorErrorPage() {
     display->clearDisplay();
-    display->setTextColor(WHITE);
-    display->setTextSize(1);
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println(F(""));
@@ -84,8 +84,6 @@ void PageContentHelper::sensorErrorPage() {
 
 void PageContentHelper::sensorResetErrorPage() {
     display->clearDisplay();
-    display->setTextColor(WHITE);
-    display->setTextSize(1);
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println(F(""));
@@ -95,8 +93,6 @@ void PageContentHelper::sensorResetErrorPage() {
 
 void PageContentHelper::sensorSensSetupErrorPage() {
     display->clearDisplay();
-    display->setTextColor(WHITE);
-    display->setTextSize(1);
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println(F(""));
@@ -106,8 +102,6 @@ void PageContentHelper::sensorSensSetupErrorPage() {
 
 void PageContentHelper::sensorAccSetupErrorPage() {
     display->clearDisplay();
-    display->setTextColor(WHITE);
-    display->setTextSize(1);
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println(F(""));

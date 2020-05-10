@@ -4,14 +4,16 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <DataProfiles.h>
+#include <ShotCounterLang.h>
 
 class PageContentHelper {
    private:
     Adafruit_SSD1306 *display;
+    ShotCounterLang *shotCounterLang;
 
    public:
     // Constructor
-    explicit PageContentHelper(Adafruit_SSD1306 *display);
+    PageContentHelper(Adafruit_SSD1306 *display, ShotCounterLang *shotCounterLang);
     // Show info page with version
     void versionPage(char const *version);
     // Show shot counter page

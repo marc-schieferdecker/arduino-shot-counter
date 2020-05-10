@@ -14,6 +14,7 @@
 #include <PageHelper.h>
 #include <PowerDevice.h>
 #include <SingleButton.h>
+#include <ShotCounterLang.h>
 // Bitmaps
 #include "Grafics.h"
 
@@ -22,7 +23,7 @@
  */
 // Version and debug
 #define SHOT_COUNTER_VERSION "Version 0.04a"
-#define PRINT_DEBUG false
+#define PRINT_DEBUG true
 // Display
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C
@@ -50,8 +51,10 @@
 Adafruit_SSD1306 display(OLED_RESET);
 // Display helper
 DisplayHelper displayHelper(&display, SSD1306_SWITCHCAPVCC, OLED_ADDR);
+// Localization
+ShotCounterLang shotCounterLang(PROFILES_EEADDR_START + (sizeof(ShotCounterData) * PROFILES_MAX) + 1);
 // Page content helper
-PageContentHelper pageContentHelper(&display);
+PageContentHelper pageContentHelper(&display, &shotCounterLang);
 // Gyro measurement
 GyroMeasure gyroMeasure(GYRO_ADDR, GYRO_ACC_REGISTER_START, &pageContentHelper, PRINT_DEBUG);
 // EEPROM crc
