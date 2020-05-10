@@ -6,9 +6,14 @@
 // String not translated error message
 const char LangError[] PROGMEM = {"translation error"};
 
+/**
+ * Hex table for german umlauts (Codepage 850)
+ * ä  ö  ü  ß  Ä  Ö  Ü
+ * 84 94 81 E1 8E 99 9A
+ */
 #define waitingForShots 0
 const char waitingForShotsEN[] PROGMEM = {"  Waiting for shots"};
-const char waitingForShotsDE[] PROGMEM = {"  Warte auf Schuesse"};
+const char waitingForShotsDE[] PROGMEM = {"  Warte auf Sch\x81sse"};
 
 class ShotCounterLang {
    private:
