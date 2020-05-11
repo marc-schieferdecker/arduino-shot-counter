@@ -22,7 +22,7 @@
  * Definitions
  */
 // Version and debug
-#define SHOT_COUNTER_VERSION "Version 0.04a"
+#define SHOT_COUNTER_VERSION "Version 0.05a"
 #define PRINT_DEBUG false
 // Display
 #define OLED_RESET 4
@@ -35,7 +35,7 @@
 #define PROFILES_EEADDR_START 0
 #define PROFILES_MAX 6
 // Main pages available
-#define PAGES_MAIN_TOTAL 4
+#define PAGES_MAIN_TOTAL 5
 // Single button pin and bitmask
 #define BUTTON_PIN_REG PINB
 #define BUTTON_PIN_BITMASK 0b00000100  // Pin D10 = bit 2 of PINB
@@ -76,6 +76,7 @@ PageController pageController(
     &pageHelper,
     &singleButton,
     &powerDevice,
+    &shotCounterLang,
     PRINT_DEBUG);
 
 // Setup

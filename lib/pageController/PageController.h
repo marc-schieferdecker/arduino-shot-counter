@@ -6,8 +6,8 @@
 #include <GyroMeasure.h>
 #include <PageContentHelper.h>
 #include <PageHelper.h>
-#include <SingleButton.h>
 #include <PowerDevice.h>
+#include <SingleButton.h>
 
 class PageController {
    private:
@@ -22,6 +22,7 @@ class PageController {
     PageHelper *pageHelper;
     SingleButton *singleButton;
     PowerDevice *powerDevice;
+    ShotCounterLang *shotCounterLang;
     bool printDebug;
 
     void nextMainPage() {
@@ -39,6 +40,7 @@ class PageController {
                    PageHelper *pageHelper,
                    SingleButton *singleButton,
                    PowerDevice *powerDevice,
+                   ShotCounterLang *shotCounterLang,
                    bool printDebug);
     // Init shot counter
     void setup();
@@ -58,6 +60,10 @@ class PageController {
     void setupShotDelayPage(int nextPageIndex);
     // Show reset profile page
     void resetProfilePage(int nextPageIndex);
+    // Show enter device setup page
+    void enterDeviceSetupPage(int subMenuPageIndex);
+    // Show language selection page
+    void languageSelectionPage(int nextPageIndex);
     // Show power off device page
     void powerOffDevicePage();
 };

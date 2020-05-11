@@ -34,7 +34,7 @@ void PageContentHelper::waitingForShotsPage() {
 }
 
 void PageContentHelper::enterProfilePage() {
-    display->print(shotCounterLang->getKey(SCLangSetup));
+    display->print(shotCounterLang->getKey(SCLangProfileSetup));
 }
 
 void PageContentHelper::setupGforcePage(float countGforce, float gforceLast) {
@@ -68,7 +68,7 @@ void PageContentHelper::sensorErrorPage() {
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println();
-    display->println(F("Sleep still active"));
+    display->println(F("Gyro is steeping"));
     display->display();
 }
 
@@ -77,7 +77,7 @@ void PageContentHelper::sensorResetErrorPage() {
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println();
-    display->print(F("Could not reset gyro"));
+    display->print(F("Reset gyro err"));
     display->display();
 }
 
@@ -86,7 +86,7 @@ void PageContentHelper::sensorSensSetupErrorPage() {
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println();
-    display->print(F("Could not set gyro sensitivity"));
+    display->print(F("Set gyro sens err"));
     display->display();
 }
 
@@ -95,8 +95,23 @@ void PageContentHelper::sensorAccSetupErrorPage() {
     display->setCursor(2, 0);
     display->println(F("Problem with gyro"));
     display->println();
-    display->print(F("Could not set acceleration sensitivity"));
+    display->print(F("Set acc sens err"));
     display->display();
+}
+
+void PageContentHelper::enterDeviceSetupPage() {
+    display->print(shotCounterLang->getKey(SCLangDeviceSetup));
+}
+
+void PageContentHelper::languageSelectionPage(char activeLanguage) {
+    display->print(shotCounterLang->getKey(SCLangLanguage));
+    if (activeLanguage == 'D') {
+        display->println(F("Deutsch"));
+    } else {
+        display->println(F("English"));
+    }
+    display->println();
+    display->print(shotCounterLang->getKey(SCLangChangeLanguage));
 }
 
 void PageContentHelper::powerOffDevicePage() {

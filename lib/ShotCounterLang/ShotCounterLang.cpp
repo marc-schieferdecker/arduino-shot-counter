@@ -5,7 +5,7 @@
 ShotCounterLang::ShotCounterLang(unsigned int _eeAddress) {
     // Set EEPROM address and get language from EEPROM
     eeAddress = _eeAddress;
-    getLang();
+    loadLang();
 
     // Check if lang is valid, if not apply english as default
     if (lang != 'E' && lang != 'D') {
@@ -13,13 +13,12 @@ ShotCounterLang::ShotCounterLang(unsigned int _eeAddress) {
     }
 }
 
-void ShotCounterLang::setLang(char _lang) {
-    EEPROM.update(eeAddress, _lang);
-    getLang();
+char ShotCounterLang::getLang() {
+    return lang;
 }
 
-void ShotCounterLang::getLang() {
-    lang = EEPROM.read(eeAddress);
+void ShotCounterLang::switchLang() {
+    setLang(lang == 'D' ? 'E' : 'D');
 }
 
 char* ShotCounterLang::getKey(int key) {
@@ -29,8 +28,8 @@ char* ShotCounterLang::getKey(int key) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangTotalDE) : getProgmemCharAsPointer(SCLangTotalEN);
     } else if (key == SCLangSeries) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangSeriesDE) : getProgmemCharAsPointer(SCLangSeriesEN);
-    } else if (key == SCLangSetup) {
-        return lang == 'D' ? getProgmemCharAsPointer(SCLangSetupDE) : getProgmemCharAsPointer(SCLangSetupEN);
+    } else if (key == SCLangProfileSetup) {
+        return lang == 'D' ? getProgmemCharAsPointer(SCLangProfileSetupDE) : getProgmemCharAsPointer(SCLangProfileSetupEN);
     } else if (key == SCLangPowerOff) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangPowerOffDE) : getProgmemCharAsPointer(SCLangPowerOffEN);
     } else if (key == SCLangResetProfile) {
@@ -47,6 +46,12 @@ char* ShotCounterLang::getKey(int key) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangMaximumValueMeasuredDE) : getProgmemCharAsPointer(SCLangMaximumValueMeasuredEN);
     } else if (key == SCLangProfilePrepend) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangProfilePrependDE) : getProgmemCharAsPointer(SCLangProfilePrependEN);
+    } else if (key == SCLangDeviceSetup) {
+        return lang == 'D' ? getProgmemCharAsPointer(SCLangDeviceSetupDE) : getProgmemCharAsPointer(SCLangDeviceSetupEN);
+    } else if (key == SCLangLanguage) {
+        return lang == 'D' ? getProgmemCharAsPointer(SCLangLanguageDE) : getProgmemCharAsPointer(SCLangLanguageEN);
+    } else if (key == SCLangChangeLanguage) {
+        return lang == 'D' ? getProgmemCharAsPointer(SCLangChangeLanguageDE) : getProgmemCharAsPointer(SCLangChangeLanguageEN);
     }
 
     return getProgmemCharAsPointer(LangError);

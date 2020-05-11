@@ -16,9 +16,9 @@ const char SCLangTotalDE[] PROGMEM = {"Gesamt     "};
 #define SCLangSeries 2
 const char SCLangSeriesEN[] PROGMEM = {"Series     "};
 const char SCLangSeriesDE[] PROGMEM = {"Serie      "};
-#define SCLangSetup 3
-const char SCLangSetupEN[] PROGMEM = {"Setup\n\nTo enter setup\nhold button"};
-const char SCLangSetupDE[] PROGMEM = {"Einstellungen\n\nTaster halten\nzum \x94\x66\x66nen"};
+#define SCLangProfileSetup 3
+const char SCLangProfileSetupEN[] PROGMEM = {"Gun setup\n\nTo enter setup\nhold button"};
+const char SCLangProfileSetupDE[] PROGMEM = {"Einstellungen Waffe\n\nTaster halten\nzum \x94\x66\x66nen"};
 #define SCLangPowerOff 4
 const char SCLangPowerOffEN[] PROGMEM = {"Power off\n\nTo turn off device\nhold button"};
 const char SCLangPowerOffDE[] PROGMEM = {"Ausschalten\n\nZum Ausschalten\nTaster halten"};
@@ -43,5 +43,14 @@ const char SCLangMaximumValueMeasuredDE[] PROGMEM = {"Gemessener\nMaximalwert: "
 #define SCLangProfilePrepend 11
 const char SCLangProfilePrependEN[] PROGMEM = {"Gun "};
 const char SCLangProfilePrependDE[] PROGMEM = {"Waffe "};
+#define SCLangDeviceSetup 12
+const char SCLangDeviceSetupEN[] PROGMEM = {"Device setup\n\nTo enter setup\nhold button"};
+const char SCLangDeviceSetupDE[] PROGMEM = {"Einstellungen Ger\x84t\n\nTaster halten\nzum \x94\x66\x66nen"};
+#define SCLangLanguage 13
+const char SCLangLanguageEN[] PROGMEM = {"Language: "};
+const char SCLangLanguageDE[] PROGMEM = {"Sprache: "};
+#define SCLangChangeLanguage 14
+const char SCLangChangeLanguageEN[] PROGMEM = {"To change language\nhold button"};
+const char SCLangChangeLanguageDE[] PROGMEM = {"Zum \x8Endern\nTaster halten"};
 
 #endif

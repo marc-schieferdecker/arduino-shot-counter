@@ -17,6 +17,7 @@ PageController::PageController(DataProfiles *_dataProfiles,
                                PageHelper *_pageHelper,
                                SingleButton *_singleButton,
                                PowerDevice *_powerDevice,
+                               ShotCounterLang *_shotCounterLang,
                                bool _printDebug) {
     dataProfiles = _dataProfiles;
     displayHelper = _displayHelper;
@@ -25,6 +26,7 @@ PageController::PageController(DataProfiles *_dataProfiles,
     pageHelper = _pageHelper;
     singleButton = _singleButton;
     powerDevice = _powerDevice;
+    shotCounterLang = _shotCounterLang;
     printDebug = _printDebug;
 }
 
@@ -55,22 +57,28 @@ void PageController::loop() {
         counterPage();
     } else if (pageHelper->getPageIndex() == 2) {
         // Main page 3: Enter setup page
-        enterProfilePage(4);
+        enterProfilePage(5);
     } else if (pageHelper->getPageIndex() == 3) {
+        // Main page 3: Enter setup page
+        enterDeviceSetupPage(9);
+    } else if (pageHelper->getPageIndex() == 4) {
         // Main page 4: Power off device
         powerOffDevicePage();
-    } else if (pageHelper->getPageIndex() == 4) {
-        // Setup sub page 1: Calibration helper page
-        calibrationPage(5);
     } else if (pageHelper->getPageIndex() == 5) {
-        // Setup sub page 2: Set min g force for shot count
-        setupGforcePage(6);
+        // Profile setup sub page 1: Calibration helper page
+        calibrationPage(6);
     } else if (pageHelper->getPageIndex() == 6) {
-        // Setup sub page 3: Set shot count delay value
-        setupShotDelayPage(7);
+        // Profile setup sub page 2: Set min g force for shot count
+        setupGforcePage(7);
     } else if (pageHelper->getPageIndex() == 7) {
-        // Setup sub page 4: Reset profile page
+        // Profile setup sub page 3: Set shot count delay value
+        setupShotDelayPage(8);
+    } else if (pageHelper->getPageIndex() == 8) {
+        // Profile setup sub page 4: Reset profile page
         resetProfilePage(0);
+    } else if (pageHelper->getPageIndex() == 9) {
+        // Device setup sub page 1: Select language page
+        languageSelectionPage(0);
     }
 
     // Automatic return to shot counter page (page 0) after 5000 millis
@@ -283,6 +291,46 @@ void PageController::resetProfilePage(int nextPageIndex) {
         shotCounter = dataProfiles->resetShotCounter();
         displayHelper->blink();
         singleButton->longPressTriggerDone();
+    }
+}
+
+void PageController::enterDeviceSetupPage(int subMenuPageIndex) {
+    if (displayHelper->getDisplayChanged()) {
+        // Display enter setup page
+        displayHelper->clear();
+        pageContentHelper->enterDeviceSetupPage();
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        pageHelper->setPageIndex(subMenuPageIndex);
+        displayHelper->setDisplayChanged(true);
+        displayHelper->blink();
+        delay(500);
+        singleButton->longPressTriggerDone();
+    }
+}
+
+void PageController::languageSelectionPage(int nextPageIndex) {
+    if (displayHelper->getDisplayChanged()) {
+        displayHelper->clear();
+        pageContentHelper->languageSelectionPage(shotCounterLang->getLang());
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Shortpress handler
+    if (singleButton->shortPressTrigger()) {
+        pageHelper->setPageIndex(nextPageIndex);
+        displayHelper->setDisplayChanged(true);
+        singleButton->shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        shotCounterLang->switchLang();
+        displayHelper->blink();
+        singleButton->longPressTriggerDone();
+        displayHelper->setDisplayChanged(true);
     }
 }
 

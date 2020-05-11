@@ -38,6 +38,10 @@ class PageContentHelper {
     void sensorSensSetupErrorPage();
     // Show acceleration sensitivity setup error page
     void sensorAccSetupErrorPage();
+    // Show enter device setup page
+    void enterDeviceSetupPage();
+    // Show language selection page
+    void languageSelectionPage(char activeLanguage);
     // Show power off page
     void powerOffDevicePage();
 };

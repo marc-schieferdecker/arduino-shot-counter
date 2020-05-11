@@ -14,10 +14,21 @@ class ShotCounterLang {
     unsigned int eeAddress;
     char lang = 'E';
     // Dynamic char buffer for converting progmem chars to char*
-    char* progMemCharBuffer = 0;
+    char *progMemCharBuffer = 0;
+
+    // Set language and store lang char in EEPROM
+    void setLang(char _lang) {
+        EEPROM.update(eeAddress, _lang);
+        loadLang();
+    }
+
+    // Get language from EEPROM
+    void loadLang() {
+        lang = EEPROM.read(eeAddress);
+    }
 
     // Convert PROGMEM char to char*
-    char* getProgmemCharAsPointer(const char* str) {
+    char* getProgmemCharAsPointer(const char *str) {
         progMemCharBuffer = (char*)realloc(progMemCharBuffer, strlen_P(str) + 1);
         strcpy_P(progMemCharBuffer, str);
         return progMemCharBuffer;
@@ -26,10 +37,10 @@ class ShotCounterLang {
    public:
     // Constructor
     ShotCounterLang(unsigned int eeAddress);
-    // Set language and store lang char in EEPROM
-    void setLang(char lang);
-    // Get language from EEPROM
-    void getLang();
+    // Get language
+    char getLang();
+    // Change language
+    void switchLang();
     // Get language string by key
     char* getKey(int key);
 };
