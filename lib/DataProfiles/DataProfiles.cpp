@@ -23,7 +23,7 @@ ShotCounterData DataProfiles::setup() {
                 ""};
 
             // Set profile name
-            sprintf(defaultShotCounter.profileName, "%d", i + 1);
+            defaultShotCounter.profileName[0] = (char)(i+1);
 
             // Store data and update crc
             EEPROM.put(eeAddress + (sizeof(ShotCounterData) * i), defaultShotCounter);
@@ -52,7 +52,7 @@ ShotCounterData DataProfiles::resetShotCounter() {
         250,
         ""};
     // Set profile name
-    sprintf(defaultShotCounter.profileName, "%d", selectedProfile + 1);
+    defaultShotCounter.profileName[0] = (char)(selectedProfile+1);
     putShotCounter(defaultShotCounter);
     return defaultShotCounter;
 }
