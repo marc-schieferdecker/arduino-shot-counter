@@ -7,7 +7,6 @@ class GyroMeasure {
    private:
     int gyroAddress;
     int gyroAccRegisterStart;
-    bool printDebug;
     int16_t gyroGX;
     int16_t gyroGY;
     int16_t gyroGZ;
@@ -17,7 +16,7 @@ class GyroMeasure {
 
    public:
     // Constructor
-    GyroMeasure(int gyroAddress, int gyroAccRegisterStart, PageContentHelper *pageContentHelper, bool printDebug);
+    GyroMeasure(int gyroAddress, int gyroAccRegisterStart, PageContentHelper *pageContentHelper);
     // Init gyro sensor
     void setup();
     // Get actual measurement and calculate acc max

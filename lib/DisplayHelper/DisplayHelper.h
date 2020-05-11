@@ -24,8 +24,6 @@ class DisplayHelper {
     void setDisplayChanged(bool changed);
     // Get display changed
     bool getDisplayChanged();
-    // Draw a full screen image
-    void bitmapFullscreen(const uint8_t bitmap[]);
     // Draw an icon
     void bitmapIcon(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h);
     // Render view

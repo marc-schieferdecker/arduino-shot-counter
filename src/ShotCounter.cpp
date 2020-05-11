@@ -5,7 +5,6 @@
 #include <Adafruit_SSD1306.h>
 #include <Arduino.h>
 // Project includes
-#include <ShotCounterData.h>
 #include <DataProfiles.h>
 #include <DisplayHelper.h>
 #include <GyroMeasure.h>
@@ -13,8 +12,9 @@
 #include <PageController.h>
 #include <PageHelper.h>
 #include <PowerDevice.h>
-#include <SingleButton.h>
+#include <ShotCounterData.h>
 #include <ShotCounterLang.h>
+#include <SingleButton.h>
 // Bitmaps
 #include "Grafics.h"
 
@@ -23,7 +23,7 @@
  */
 // Version and debug
 #define SHOT_COUNTER_VERSION "Version 0.05a"
-#define PRINT_DEBUG false
+#include "Debug.h"
 // Display
 #define OLED_RESET 4
 #define OLED_ADDR 0x3C
@@ -56,7 +56,7 @@ ShotCounterLang shotCounterLang(PROFILES_EEADDR_START + (sizeof(ShotCounterData)
 // Page content helper
 PageContentHelper pageContentHelper(&display, &shotCounterLang);
 // Gyro measurement
-GyroMeasure gyroMeasure(GYRO_ADDR, GYRO_ACC_REGISTER_START, &pageContentHelper, PRINT_DEBUG);
+GyroMeasure gyroMeasure(GYRO_ADDR, GYRO_ACC_REGISTER_START, &pageContentHelper);
 // EEPROM crc
 EEPromCRC eepromCrc(EEPROM_CRC_ADDR, PROFILES_EEADDR_START, sizeof(ShotCounterData) * PROFILES_MAX);
 // Data profiles
@@ -76,29 +76,29 @@ PageController pageController(
     &pageHelper,
     &singleButton,
     &powerDevice,
-    &shotCounterLang,
-    PRINT_DEBUG);
+    &shotCounterLang);
 
 // Setup
 void setup() {
-    // Setup serial console in debug mode
-    if (PRINT_DEBUG) {
-        Serial.begin(9600);
-        delay(50);
-        Serial.println(F("Debug serial with 9600 baud on"));
-    }
+// Setup serial console in debug mode
+#ifdef SCDebug
+    Serial.begin(9600);
+    delay(50);
+    Serial.println(F("Debug serial with 9600 baud on"));
+#endif
 
     // Keep device on and set power pin to HIGH
     powerDevice.keepDeviceOn();
-    if (PRINT_DEBUG) {
-        Serial.print(F("POWER PIN STATE "));
-        Serial.print((POWERPIN_PIN & POWERPIN_BITMASK_ON) >> 5);
-        Serial.println();
-    }
+#ifdef SCDebug
+    Serial.print(F("POWER PIN STATE "));
+    Serial.print((POWERPIN_PIN & POWERPIN_BITMASK_ON) >> 5);
+    Serial.println();
+#endif
 
     // Setup display (SBC-OLED01)
     displayHelper.setup();
-    displayHelper.bitmapFullscreen(Logo);
+    displayHelper.bitmapIcon(0, 0, Logo, 128, 32);
+    displayHelper.render();
     delay(1000);
 
     // Init gyro sensor
@@ -110,12 +110,12 @@ void setup() {
     // Init page controller
     pageController.setup();
 
-    // Print state of EEPROM
-    if (PRINT_DEBUG) {
-        Serial.print(F("CRC EEPROM STATE "));
-        Serial.print(eepromCrc.crcIsValid());
-        Serial.println();
-    }
+// Print state of EEPROM
+#ifdef SCDebug
+    Serial.print(F("CRC EEPROM STATE "));
+    Serial.print(eepromCrc.crcIsValid());
+    Serial.println();
+#endif
 
     // Display version page
     displayHelper.clear();

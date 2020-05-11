@@ -3,11 +3,12 @@
 #include <PageContentHelper.h>
 #include <Wire.h>
 
-GyroMeasure::GyroMeasure(int _gyroAddress, int _gyroAccRegisterStart, PageContentHelper *_pageContentHelper, bool _printDebug) {
+#include "../../include/Debug.h"
+
+GyroMeasure::GyroMeasure(int _gyroAddress, int _gyroAccRegisterStart, PageContentHelper *_pageContentHelper) {
     gyroAddress = _gyroAddress;
     gyroAccRegisterStart = _gyroAccRegisterStart;
     pageContentHelper = _pageContentHelper;
-    printDebug = _printDebug;
 }
 
 void GyroMeasure::setup() {
@@ -70,9 +71,9 @@ void GyroMeasure::setupResetSensor() {
         Wire.write(0b10000000);  // Reset gyro to default
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.println(F("Gyro reseted"));
-        }
+#ifdef SCDebug
+        Serial.println(F("Gyro reseted"));
+#endif
 
         // Test for success (reset bit must have changed to 0)
         Wire.beginTransmission(gyroAddress);
@@ -82,10 +83,10 @@ void GyroMeasure::setupResetSensor() {
         byte testGyroReset = Wire.read();
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.print(F("Gyro reset bits -> "));
-            Serial.println(testGyroReset & 0b10000000);
-        }
+#ifdef SCDebug
+        Serial.print(F("Gyro reset bits -> "));
+        Serial.println(testGyroReset & 0b10000000);
+#endif
         if ((testGyroReset & 0b10000000) == 0b10000000) {
             pageContentHelper->sensorResetErrorPage();
             delay(1000);
@@ -103,9 +104,9 @@ void GyroMeasure::setupGyroSensitivity() {
         Wire.write(0b00011000);  // Set max gyro scale
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.println(F("Gyro set to max scale"));
-        }
+#ifdef SCDebug
+        Serial.println(F("Gyro set to max scale"));
+#endif
 
         // Test for success
         Wire.beginTransmission(gyroAddress);
@@ -115,10 +116,10 @@ void GyroMeasure::setupGyroSensitivity() {
         byte testGyroSens = Wire.read();
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.print(F("Gyro sens bits -> "));
-            Serial.println(testGyroSens & 0b00011000);
-        }
+#ifdef SCDebug
+        Serial.print(F("Gyro sens bits -> "));
+        Serial.println(testGyroSens & 0b00011000);
+#endif
         if ((testGyroSens & 0b00011000) != 0b00011000) {
             pageContentHelper->sensorSensSetupErrorPage();
             delay(1000);
@@ -136,9 +137,9 @@ void GyroMeasure::setupAccelerationSensitivity() {
         Wire.write(0b00011000);  // Set acc to 16g
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.println(F("Gyro acc sensitivity set to 16g"));
-        }
+#ifdef SCDebug
+        Serial.println(F("Gyro acc sensitivity set to 16g"));
+#endif
 
         // Test for success
         Wire.beginTransmission(gyroAddress);
@@ -148,10 +149,10 @@ void GyroMeasure::setupAccelerationSensitivity() {
         byte testAccSens = Wire.read();
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.print(F("Gyro acc sens bits -> "));
-            Serial.println(testAccSens & 0b00011000);
-        }
+#ifdef SCDebug
+        Serial.print(F("Gyro acc sens bits -> "));
+        Serial.println(testAccSens & 0b00011000);
+#endif
         if ((testAccSens & 0b00011000) != 0b00011000) {
             pageContentHelper->sensorAccSetupErrorPage();
             delay(1000);
@@ -168,9 +169,9 @@ void GyroMeasure::sensorSleep() {
     Wire.write(0b01000000);  // Set sleep to 1
     Wire.endTransmission(true);
     delay(50);
-    if (printDebug) {
-        Serial.println(F("Gyro sleep"));
-    }
+#ifdef SCDebug
+    Serial.println(F("Gyro sleep"));
+#endif
 }
 
 void GyroMeasure::sensorWake() {
@@ -182,9 +183,9 @@ void GyroMeasure::sensorWake() {
         Wire.write(0);  // Set sleep to 0
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.println(F("Gyro waked"));
-        }
+#ifdef SCDebug
+        Serial.println(F("Gyro waked"));
+#endif
 
         // Test if sensor is woke
         Wire.beginTransmission(gyroAddress);
@@ -194,10 +195,10 @@ void GyroMeasure::sensorWake() {
         byte testSleepMode = Wire.read();
         Wire.endTransmission(true);
         delay(50);
-        if (printDebug) {
-            Serial.print(F("Gyro is sleeping -> "));
-            Serial.println(testSleepMode);
-        }
+#ifdef SCDebug
+        Serial.print(F("Gyro is sleeping -> "));
+        Serial.println(testSleepMode);
+#endif
         if (testSleepMode & 0x01000000) {
             pageContentHelper->sensorErrorPage();
             delay(1000);

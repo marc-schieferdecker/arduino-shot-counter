@@ -8,6 +8,7 @@
 #include <PowerDevice.h>
 #include <SingleButton.h>
 
+#include "../../include/Debug.h"
 #include "../../include/Grafics.h"
 
 PageController::PageController(DataProfiles *_dataProfiles,
@@ -17,8 +18,7 @@ PageController::PageController(DataProfiles *_dataProfiles,
                                PageHelper *_pageHelper,
                                SingleButton *_singleButton,
                                PowerDevice *_powerDevice,
-                               ShotCounterLang *_shotCounterLang,
-                               bool _printDebug) {
+                               ShotCounterLang *_shotCounterLang) {
     dataProfiles = _dataProfiles;
     displayHelper = _displayHelper;
     gyroMeasure = _gyroMeasure;
@@ -27,7 +27,6 @@ PageController::PageController(DataProfiles *_dataProfiles,
     singleButton = _singleButton;
     powerDevice = _powerDevice;
     shotCounterLang = _shotCounterLang;
-    printDebug = _printDebug;
 }
 
 void PageController::setup() {
@@ -123,11 +122,11 @@ void PageController::waitingForShotsPage(const uint8_t *bitmap) {
         // Store counted g value for later usage
         gyroMeasure->setGCountedLast(gMax);
 
-        // Debug
-        if (printDebug) {
-            Serial.print(F("SHOT COUNTED "));
-            Serial.println(gMax);
-        }
+// Debug
+#ifdef SCDebug
+        Serial.print(F("SHOT COUNTED "));
+        Serial.println(gMax);
+#endif
 
         // Delay to prevent multiple counts
         shotCounter.shotsSeries++;

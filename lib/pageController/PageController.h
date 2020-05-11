@@ -23,7 +23,6 @@ class PageController {
     SingleButton *singleButton;
     PowerDevice *powerDevice;
     ShotCounterLang *shotCounterLang;
-    bool printDebug;
 
     void nextMainPage() {
         pageHelper->nextPage();
@@ -40,8 +39,7 @@ class PageController {
                    PageHelper *pageHelper,
                    SingleButton *singleButton,
                    PowerDevice *powerDevice,
-                   ShotCounterLang *shotCounterLang,
-                   bool printDebug);
+                   ShotCounterLang *shotCounterLang);
     // Init shot counter
     void setup();
     // Main loop

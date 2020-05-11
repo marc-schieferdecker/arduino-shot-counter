@@ -36,11 +36,6 @@ bool DisplayHelper::getDisplayChanged() {
     return displayChanged;
 }
 
-void DisplayHelper::bitmapFullscreen(const uint8_t bitmap[]) {
-    display->drawBitmap(0, 0, bitmap, 128, 32, WHITE);
-    display->display();
-}
-
 void DisplayHelper::bitmapIcon(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h) {
     display->drawBitmap(x, y, bitmap, w, h, WHITE);
 }
