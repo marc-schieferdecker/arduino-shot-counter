@@ -33,7 +33,7 @@
 // Data storage
 #define EEPROM_CRC_ADDR 1019
 #define PROFILES_EEADDR_START 0
-#define PROFILES_MAX 6
+#define PROFILES_MAX 9
 // Main pages available
 #define PAGES_MAIN_TOTAL 5
 // Single button pin and bitmask

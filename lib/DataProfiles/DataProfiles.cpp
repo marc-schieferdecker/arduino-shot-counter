@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include <ShotCounterData.h>
 #include <DataProfiles.h>
 #include <EEPROM.h>
 #include <EEPromCRC.h>
+#include <ShotCounterData.h>
 
 DataProfiles::DataProfiles(byte _profilesMax, unsigned int _eeAddress, EEPromCRC *_eepromCrc) {
     profilesMax = _profilesMax;
@@ -20,11 +20,7 @@ ShotCounterData DataProfiles::setup() {
                 0,
                 3,
                 250,
-                ""};
-
-            // Set profile name
-            defaultShotCounter.profileName[0] = (char)(i+1);
-
+                (char)(i + 0x31)};  // 0x31 -> ASCII "0"
             // Store data and update crc
             EEPROM.put(eeAddress + (sizeof(ShotCounterData) * i), defaultShotCounter);
         }
@@ -50,9 +46,7 @@ ShotCounterData DataProfiles::resetShotCounter() {
         0,
         3,
         250,
-        ""};
-    // Set profile name
-    defaultShotCounter.profileName[0] = (char)(selectedProfile+1);
+        (char)(selectedProfile + 0x31)}; // 0x31 -> ASCII "0"
     putShotCounter(defaultShotCounter);
     return defaultShotCounter;
 }
