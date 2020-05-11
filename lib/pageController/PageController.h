@@ -14,6 +14,7 @@ class PageController {
     ShotCounterData shotCounter;
     float gMaxCalibration = 0;
     unsigned long calibrationDisplayUpdateDelay = 0;
+    unsigned long returnToShotCounterPage = 0;
     DataProfiles *dataProfiles;
     DisplayHelper *displayHelper;
     GyroMeasure *gyroMeasure;

@@ -20,6 +20,7 @@ void PageContentHelper::versionPage(char const *version) {
 }
 
 void PageContentHelper::counterPage(ShotCounterData shotCounter) {
+    display->print(shotCounterLang->getKey(SCLangProfilePrepend));
     display->println(shotCounter.profileName);
     display->println();
     display->print(shotCounterLang->getKey(SCLangTotal));

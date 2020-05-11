@@ -45,6 +45,8 @@ char* ShotCounterLang::getKey(int key) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangCalibrationHelperDE) : getProgmemCharAsPointer(SCLangCalibrationHelperEN);
     } else if (key == SCLangMaximumValueMeasured) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangMaximumValueMeasuredDE) : getProgmemCharAsPointer(SCLangMaximumValueMeasuredEN);
+    } else if (key == SCLangProfilePrepend) {
+        return lang == 'D' ? getProgmemCharAsPointer(SCLangProfilePrependDE) : getProgmemCharAsPointer(SCLangProfilePrependEN);
     }
 
     return getProgmemCharAsPointer(LangError);

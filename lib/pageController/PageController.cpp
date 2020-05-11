@@ -5,8 +5,8 @@
 #include <PageContentHelper.h>
 #include <PageController.h>
 #include <PageHelper.h>
-#include <SingleButton.h>
 #include <PowerDevice.h>
+#include <SingleButton.h>
 
 #include "../../include/Grafics.h"
 
@@ -39,11 +39,17 @@ void PageController::loop() {
     // Check for short press
     if (singleButton->shortPressTrigger() && pageHelper->getPageIndex() < pageHelper->getMaxMainPages()) {
         nextMainPage();
+        // Start trigger for automatic return to shot counter page (page 0)
+        if (pageHelper->getPageIndex() > 0) {
+            returnToShotCounterPage = millis();
+        }
     }
 
     if (pageHelper->getPageIndex() == 0) {
         // Main page 1: Wait for shots
         waitingForShotsPage(Aim);
+        // Reset trigger for automatic return to shot counter page (page 0)
+        returnToShotCounterPage = 0;
     } else if (pageHelper->getPageIndex() == 1) {
         // Main page 2: Display shot counter data
         counterPage();
@@ -65,6 +71,14 @@ void PageController::loop() {
     } else if (pageHelper->getPageIndex() == 7) {
         // Setup sub page 4: Reset profile page
         resetProfilePage(0);
+    }
+
+    // Automatic return to shot counter page (page 0) after 5000 millis
+    if (returnToShotCounterPage > 0 && (returnToShotCounterPage + 5000) < millis()) {
+        if (pageHelper->getPageIndex() > 0 && pageHelper->getPageIndex() < pageHelper->getMaxMainPages()) {
+            pageHelper->setPageIndex(0);
+            displayHelper->setDisplayChanged(true);
+        }
     }
 
     // Delay after page change to disable multiple page changes
@@ -133,6 +147,8 @@ void PageController::counterPage() {
         displayHelper->setDisplayChanged(true);
         displayHelper->blink();
         singleButton->longPressTriggerDone();
+        // Stop automatic return to shot counter page (page 0) if a longpress was detected
+        returnToShotCounterPage = 0;
     }
 }
 
@@ -271,7 +287,7 @@ void PageController::resetProfilePage(int nextPageIndex) {
 }
 
 void PageController::powerOffDevicePage() {
-        if (displayHelper->getDisplayChanged()) {
+    if (displayHelper->getDisplayChanged()) {
         displayHelper->clear();
         pageContentHelper->powerOffDevicePage();
         displayHelper->render();

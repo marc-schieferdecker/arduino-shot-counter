@@ -40,5 +40,8 @@ const char SCLangCalibrationHelperDE[] PROGMEM = {"Kalibrierhilfe\n\n"};
 #define SCLangMaximumValueMeasured 10
 const char SCLangMaximumValueMeasuredEN[] PROGMEM = {"Maximum value\nmeasured: "};
 const char SCLangMaximumValueMeasuredDE[] PROGMEM = {"Gemessener\nMaximalwert: "};
+#define SCLangProfilePrepend 11
+const char SCLangProfilePrependEN[] PROGMEM = {"Gun "};
+const char SCLangProfilePrependDE[] PROGMEM = {"Waffe "};
 
 #endif
