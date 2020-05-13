@@ -16,7 +16,7 @@ class DataProfiles {
     // Constructor
     DataProfiles(byte profilesMax, unsigned int eeAddress, EEPromCRC *eepromCrc);
     // Init functions
-    ShotCounterData setup();
+    ShotCounterData setup(bool forceDefault);
     // Get active shot counter
     ShotCounterData getShotCounter();
     // Store active shot counter

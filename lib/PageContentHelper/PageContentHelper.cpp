@@ -114,6 +114,10 @@ void PageContentHelper::languageSelectionPage(char activeLanguage) {
     display->print(shotCounterLang->getKey(SCLangChangeLanguage));
 }
 
+void PageContentHelper::resetDevicePage() {
+    display->print(shotCounterLang->getKey(SCLangResetDevice));
+}
+
 void PageContentHelper::powerOffDevicePage() {
     display->print(shotCounterLang->getKey(SCLangPowerOff));
 }

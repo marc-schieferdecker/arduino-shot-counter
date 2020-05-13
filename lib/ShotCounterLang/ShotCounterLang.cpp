@@ -13,6 +13,11 @@ ShotCounterLang::ShotCounterLang(unsigned int _eeAddress) {
     }
 }
 
+void ShotCounterLang::setLang(char _lang) {
+    EEPROM.update(eeAddress, _lang);
+    loadLang();
+}
+
 char ShotCounterLang::getLang() {
     return lang;
 }
@@ -52,6 +57,8 @@ char* ShotCounterLang::getKey(int key) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangLanguageDE) : getProgmemCharAsPointer(SCLangLanguageEN);
     } else if (key == SCLangChangeLanguage) {
         return lang == 'D' ? getProgmemCharAsPointer(SCLangChangeLanguageDE) : getProgmemCharAsPointer(SCLangChangeLanguageEN);
+    } else if (key == SCLangResetDevice) {
+        return lang == 'D' ? getProgmemCharAsPointer(SCLangResetDeviceDE) : getProgmemCharAsPointer(SCLangResetDeviceEN);
     }
 
     return getProgmemCharAsPointer(LangError);

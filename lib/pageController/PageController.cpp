@@ -30,7 +30,7 @@ PageController::PageController(DataProfiles *_dataProfiles,
 }
 
 void PageController::setup() {
-    shotCounter = dataProfiles->setup();
+    shotCounter = dataProfiles->setup(false);
 }
 
 void PageController::loop() {
@@ -77,7 +77,9 @@ void PageController::loop() {
         resetProfilePage(0);
     } else if (pageHelper->getPageIndex() == 9) {
         // Device setup sub page 1: Select language page
-        languageSelectionPage(0);
+        languageSelectionPage(10);
+    } else if (pageHelper->getPageIndex() == 10) {
+        resetDevicePage(0);
     }
 
     // Automatic return to shot counter page (page 0) after 5000 millis
@@ -330,6 +332,32 @@ void PageController::languageSelectionPage(int nextPageIndex) {
         displayHelper->blink();
         singleButton->longPressTriggerDone();
         displayHelper->setDisplayChanged(true);
+    }
+}
+
+void PageController::resetDevicePage(int nextPageIndex) {
+    if (displayHelper->getDisplayChanged()) {
+        displayHelper->clear();
+        pageContentHelper->resetDevicePage();
+        displayHelper->render();
+        displayHelper->setDisplayChanged(false);
+    }
+    // Shortpress handler
+    if (singleButton->shortPressTrigger()) {
+        pageHelper->setPageIndex(nextPageIndex);
+        displayHelper->setDisplayChanged(true);
+        singleButton->shortPressTriggerDone();
+    }
+    // Longpress handler
+    if (singleButton->longPressTrigger()) {
+        // Set language to english
+        shotCounterLang->setLang('E');
+        // Reset profiles
+        shotCounter = dataProfiles->setup(true);
+        displayHelper->blink();
+        singleButton->longPressTriggerDone();
+        // Soft reset
+        asm volatile ("jmp 0");
     }
 }
 

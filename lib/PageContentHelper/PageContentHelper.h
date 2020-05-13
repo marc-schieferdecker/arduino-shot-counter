@@ -42,6 +42,8 @@ class PageContentHelper {
     void enterDeviceSetupPage();
     // Show language selection page
     void languageSelectionPage(char activeLanguage);
+    // Show reset device page
+    void resetDevicePage();
     // Show power off page
     void powerOffDevicePage();
 };

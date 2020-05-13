@@ -22,7 +22,7 @@
  * Definitions
  */
 // Version and debug
-#define SHOT_COUNTER_VERSION "Version 0.05a"
+#define SHOT_COUNTER_VERSION "Version 0.06a"
 #include "Debug.h"
 // Display
 #define OLED_RESET 4
@@ -103,9 +103,6 @@ void setup() {
 
     // Init gyro sensor
     gyroMeasure.setup();
-
-    // Init data storage
-    dataProfiles.setup();
 
     // Init page controller
     pageController.setup();

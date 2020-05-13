@@ -10,9 +10,9 @@ DataProfiles::DataProfiles(byte _profilesMax, unsigned int _eeAddress, EEPromCRC
     eepromCrc = _eepromCrc;
 }
 
-ShotCounterData DataProfiles::setup() {
+ShotCounterData DataProfiles::setup(bool forceDefault) {
     // Check crc
-    if (!eepromCrc->crcIsValid()) {
+    if (!eepromCrc->crcIsValid() || forceDefault) {
         for (int i = 0; i < profilesMax; i++) {
             // Write default data to EEPROM
             ShotCounterData defaultShotCounter = {

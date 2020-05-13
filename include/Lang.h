@@ -52,5 +52,8 @@ const char SCLangLanguageDE[] PROGMEM = {"Sprache: "};
 #define SCLangChangeLanguage 14
 const char SCLangChangeLanguageEN[] PROGMEM = {"To change language\nhold button"};
 const char SCLangChangeLanguageDE[] PROGMEM = {"Zum \x8Endern\nTaster halten"};
+#define SCLangResetDevice 15
+const char SCLangResetDeviceEN[] PROGMEM = {"Factory reset\n\nTo reset device\nhold button"};
+const char SCLangResetDeviceDE[] PROGMEM = {"Werkseinstellungen\n\nZum Zur\x81\x63ksetzen\nTaster halten"};
 
 #endif

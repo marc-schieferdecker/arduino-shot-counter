@@ -62,6 +62,8 @@ class PageController {
     void enterDeviceSetupPage(int subMenuPageIndex);
     // Show language selection page
     void languageSelectionPage(int nextPageIndex);
+    // Show reset device page
+    void resetDevicePage(int nextPageIndex);
     // Show power off device page
     void powerOffDevicePage();
 };
